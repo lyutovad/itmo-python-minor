@@ -1,0 +1,642 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Python Лекция 1 — Типы, строки, коллекции, if/else</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 24px; line-height: 1.35; }
+    .wrap { max-width: 1050px; margin: 0 auto; }
+    h1 { font-size: 22px; margin: 0 0 10px; }
+    h2 { font-size: 18px; margin: 0 0 8px; }
+    h3 { font-size: 16px; margin: 0 0 6px; }
+    .muted { color: #666; font-size: 13px; }
+    .tabs { display:flex; gap:8px; margin: 14px 0; flex-wrap: wrap; }
+    .tab { padding: 8px 12px; border: 1px solid #ccc; border-radius: 10px; cursor: pointer; user-select: none; }
+    .tab.active { border-color: #000; font-weight: 600; }
+    .subtabs { display:flex; gap:8px; margin: 10px 0 0; flex-wrap: wrap; }
+    .subtab { padding: 6px 10px; border: 1px solid #ddd; border-radius: 999px; cursor: pointer; user-select: none; font-size: 13px; }
+    .subtab.active { border-color: #000; font-weight: 600; }
+    .card { border: 1px solid #ddd; border-radius: 14px; padding: 14px; margin: 12px 0; }
+    .row { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 920px) { .row { grid-template-columns: 1fr; } }
+    label { display:block; font-weight:600; margin: 8px 0 6px; }
+    input, select, button, textarea {
+      width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #ccc; font-size: 14px;
+    }
+    button { cursor:pointer; }
+    pre { background:#f7f7f7; padding: 10px; border-radius: 12px; overflow:auto; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .pill { display:inline-block; padding: 2px 10px; border-radius: 999px; border: 1px solid #ddd; font-size: 12px; margin-left: 8px; }
+    .ok { color:#0a7; font-weight: 700; }
+    .bad { color:#c33; font-weight: 700; }
+    .hr { height: 1px; background:#eee; margin: 12px 0; }
+    .note { background:#fff7e6; border:1px solid #ffe2a8; padding:10px; border-radius:12px; }
+    .grid3 { display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+    @media (max-width: 920px) { .grid3 { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Интерактив (самостоятельно): типы, строки, коллекции и простые ветвления</h1>
+  
+  <div class="tabs">
+    <div class="tab active" data-tab="theory">Теория</div>
+    <div class="tab" data-tab="play">Поиграть</div>
+    <div class="tab" data-tab="quiz">Квиз</div>
+  </div>
+
+  <!-- ===================== THEORY ===================== -->
+  <section id="theory" class="panel">
+    <div class="card">
+      <h2>Два блока этой “лекции”</h2>
+      <div class="row">
+        <div class="note">
+          <b>Блок 1.</b> Типы, операции, динамическая типизация, строки, базовые методы<br/>
+          <span class="muted">Зачем: чтобы понимать, что происходит в коде и почему “иногда 2+3=23”.</span>
+        </div>
+        <div class="note">
+          <b>Блок 2.</b> Коллекции: списки / кортежи / словари + простые if/else<br/>
+          <span class="muted">Зачем: чтобы хранить несколько значений и принимать простые решения.</span>
+        </div>
+      </div>
+      <div class="hr"></div>
+      <div class="muted">
+        Важно: это учебный материал. Мы специально показываем типовые ошибки и “ловушки”, чтобы научиться их узнавать.
+      </div>
+
+      <div class="subtabs">
+        <div class="subtab active" data-sub="t1">Блок 1</div>
+        <div class="subtab" data-sub="t2">Блок 2</div>
+      </div>
+    </div>
+
+    <!-- THEORY BLOCK 1 -->
+    <div id="t1" class="subpanel">
+      <div class="card">
+        <h2>Блок 1 — Типы, операции, динамическая типизация, строки</h2>
+
+        <h3>1) Переменная и присваивание</h3>
+        <ul>
+          <li><b>Переменная</b> — имя, которое хранит значение: <code>x = 5</code>.</li>
+          <li>Знак <code>=</code> — это “присвоить”, а не “равно”.</li>
+          <li>Код выполняется <b>сверху вниз</b>, переменная может перезаписываться.</li>
+        </ul>
+        <pre><code>x = 5
+x = x + 2
+print(x)  # 7</code></pre>
+
+        <h3>2) Типы данных (самые важные на старте)</h3>
+        <ul>
+          <li><code>int</code> — целые числа: <code>3</code></li>
+          <li><code>float</code> — дробные: <code>3.14</code></li>
+          <li><code>str</code> — строки: <code>"3"</code></li>
+          <li><code>bool</code> — истина/ложь: <code>True</code>, <code>False</code></li>
+        </ul>
+        <pre><code>print(type(3))      # int
+print(type(3.0))    # float
+print(type("3"))    # str
+print(type(True))   # bool</code></pre>
+
+        <h3>3) Динамическая типизация (важнейшая идея)</h3>
+        <div class="note">
+          В Python <b>переменная не “закреплена” за одним типом</b>.
+          Это значит: сегодня <code>x</code> может быть числом, а через минуту — строкой.
+        </div>
+        <pre><code>x = 10
+print(type(x))   # int
+
+x = "hello"
+print(type(x))   # str</code></pre>
+
+        <h3>4) Операции и “ловушка” со строками</h3>
+        <ul>
+          <li>Для чисел: <code>2 + 3 = 5</code></li>
+          <li>Для строк: <code>"2" + "3" = "23"</code> (склейка)</li>
+          <li><code>"ha" * 3</code> = <code>"hahaha"</code></li>
+        </ul>
+        <pre><code>print("2" + "3")   # "23"
+print(2 + 3)       # 5
+print("ha" * 3)    # "hahaha"</code></pre>
+
+        <h3>5) Базовые методы строк (минимум)</h3>
+        <ul>
+          <li><code>s.strip()</code> — убрать пробелы по краям</li>
+          <li><code>s.lower()</code>, <code>s.upper()</code> — регистр</li>
+          <li><code>s.split()</code> — разбить на слова</li>
+          <li><code>len(s)</code> — длина строки</li>
+        </ul>
+        <pre><code>s = "  Hello world  "
+print(s.strip())          # "Hello world"
+print(s.strip().lower())  # "hello world"
+print("a b c".split())    # ["a", "b", "c"]
+print(len("abc"))         # 3</code></pre>
+
+        <div class="note">
+          Запомнить достаточно одного принципа: <b>смотрим на тип</b> и понимаем, что делает оператор/метод именно для этого типа.
+        </div>
+      </div>
+    </div>
+
+    <!-- THEORY BLOCK 2 -->
+    <div id="t2" class="subpanel" style="display:none;">
+      <div class="card">
+        <h2>Блок 2 — Списки, кортежи, словари + if/else</h2>
+
+        <h3>1) Список (list)</h3>
+        <ul>
+          <li>Список хранит <b>много значений</b> в порядке: <code>[10, 20, 30]</code></li>
+          <li>Индексация: <code>nums[0]</code> — первый, <code>nums[-1]</code> — последний</li>
+          <li>Добавление: <code>append</code>, длина: <code>len</code></li>
+        </ul>
+        <pre><code>nums = [10, 20, 30]
+print(nums[0])     # 10
+print(nums[-1])    # 30
+nums.append(40)
+print(nums)        # [10, 20, 30, 40]
+print(len(nums))   # 4</code></pre>
+
+        <h3>2) Кортеж (tuple)</h3>
+        <ul>
+          <li>Кортеж похож на список, но обычно используется как “пара/тройка значений”: <code>(x, y)</code></li>
+          <li>Удобно распаковывать: <code>x, y = (3, 5)</code></li>
+        </ul>
+        <pre><code>p = (3, 5)
+x, y = p
+print(x, y)  # 3 5</code></pre>
+
+        <h3>3) Словарь (dict)</h3>
+        <ul>
+          <li>Хранит пары <b>ключ → значение</b>: <code>{"name": "Маша", "age": 20}</code></li>
+          <li>Доступ: <code>d["age"]</code></li>
+          <li>Безопасно: <code>d.get("age")</code> (вернёт <code>None</code>, если ключа нет)</li>
+        </ul>
+        <pre><code>person = {"name": "Маша", "age": 20}
+print(person["age"])        # 20
+print(person.get("city"))   # None</code></pre>
+
+        <h3>4) Простые ветвления if/else</h3>
+        <div class="note">
+          <b>if</b> — это “если условие True, сделай одно, иначе — другое”.<br/>
+          Условие — это выражение, которое даёт <code>True</code> или <code>False</code>.
+        </div>
+        <pre><code>x = int(input())
+if x % 2 == 0:
+    print("четное")
+else:
+    print("нечетное")</code></pre>
+
+        <h3>5) Самая важная привычка новичка</h3>
+        <ul>
+          <li>Если “что-то странно”: <b>проверь тип</b> через <code>type()</code></li>
+          <li>Если KeyError: используй <code>get()</code></li>
+          <li>Если IndexError: проверь <code>len()</code></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PLAY ===================== -->
+  <section id="play" class="panel" style="display:none;">
+    <div class="card">
+      <h2>Поиграть (мини-эксперименты)</h2>
+      <div class="muted">Это не Python-исполнитель, а тренажёр: показывает типичные эффекты и помогает “пощупать” идеи.</div>
+
+      <div class="subtabs">
+        <div class="subtab active" data-sub="p1">Блок 1</div>
+        <div class="subtab" data-sub="p2">Блок 2</div>
+      </div>
+    </div>
+
+    <!-- PLAY BLOCK 1 -->
+    <div id="p1" class="subpanel">
+      <div class="row">
+        <div class="card">
+          <h3>1) “2 + 3” vs “"2" + "3"”</h3>
+          <label>a (как текст, например 2)</label>
+          <input id="pa" placeholder="2" />
+          <label>b (как текст, например 3)</label>
+          <input id="pb" placeholder="3" />
+          <button id="btnPlaySum">Показать 3 результата</button>
+
+          <div style="margin-top:12px;">
+            <div><b>Как строки:</b> <span id="outConcat" class="pill">—</span></div>
+            <div style="margin-top:6px;"><b>Как int:</b> <span id="outInt" class="pill">—</span></div>
+            <div style="margin-top:6px;"><b>Как float:</b> <span id="outFloat" class="pill">—</span></div>
+            <div id="outSumExplain" class="muted" style="margin-top:10px;"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>2) Методы строк</h3>
+          <label>Строка</label>
+          <input id="ps" placeholder="  Hello World  " />
+          <button id="btnPlayStr">Применить методы</button>
+
+          <div style="margin-top:12px;">
+            <div><b>strip:</b> <span id="outStrip" class="pill">—</span></div>
+            <div style="margin-top:6px;"><b>lower:</b> <span id="outLower" class="pill">—</span></div>
+            <div style="margin-top:6px;"><b>upper:</b> <span id="outUpper" class="pill">—</span></div>
+            <div style="margin-top:6px;"><b>split:</b> <span id="outSplit" class="pill">—</span></div>
+            <div style="margin-top:6px;"><b>len:</b> <span id="outLen" class="pill">—</span></div>
+            <div class="muted" style="margin-top:10px;">Подсказка: <code>split()</code> режет по пробелам, а <code>strip()</code> убирает пробелы по краям.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>3) Динамическая типизация — “переменная меняет тип”</h3>
+        <div class="muted">Смотри, что “хранится” в x на разных шагах.</div>
+        <div class="grid3" style="margin-top:10px;">
+          <button id="btnDyn1">x = 10</button>
+          <button id="btnDyn2">x = "10"</button>
+          <button id="btnDyn3">x = [10, 20]</button>
+        </div>
+        <div style="margin-top:12px;">
+          <div><b>x:</b> <span id="dynVal" class="pill">—</span></div>
+          <div style="margin-top:6px;"><b>type(x):</b> <span id="dynType" class="pill">—</span></div>
+          <div id="dynExplain" class="muted" style="margin-top:10px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLAY BLOCK 2 -->
+    <div id="p2" class="subpanel" style="display:none;">
+      <div class="row">
+        <div class="card">
+          <h3>1) Список: индексы и append</h3>
+          <div class="muted">Пусть список начинается так: <code>[10, 20, 30]</code></div>
+          <button id="btnListInit" style="margin-top:10px;">Сбросить список</button>
+          <label style="margin-top:10px;">Добавить число (append)</label>
+          <input id="listAdd" placeholder="40" />
+          <button id="btnListAdd">Добавить</button>
+
+          <div style="margin-top:12px;">
+            <div><b>Список:</b> <span id="listView" class="pill">—</span></div>
+            <div style="margin-top:6px;"><b>Первый (0):</b> <span id="listFirst" class="pill">—</span></div>
+            <div style="margin-top:6px;"><b>Последний (-1):</b> <span id="listLast" class="pill">—</span></div>
+            <div style="margin-top:6px;"><b>len:</b> <span id="listLen" class="pill">—</span></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>2) Словарь: ключ → значение + get</h3>
+          <div class="muted">Пусть словарь начинается так: <code>{"name":"Маша","age":20}</code></div>
+          <button id="btnDictInit" style="margin-top:10px;">Сбросить словарь</button>
+
+          <label style="margin-top:10px;">Ключ (например city)</label>
+          <input id="dictKey" placeholder="city" />
+          <label>Значение (например Moscow)</label>
+          <input id="dictVal" placeholder="Moscow" />
+          <button id="btnDictSet">Записать d[key]=value</button>
+
+          <label style="margin-top:10px;">Прочитать ключ (get)</label>
+          <input id="dictGet" placeholder="age" />
+          <button id="btnDictGet">d.get(key)</button>
+
+          <div style="margin-top:12px;">
+            <div><b>Словарь:</b> <span id="dictView" class="pill">—</span></div>
+            <div style="margin-top:6px;"><b>get(...):</b> <span id="dictOut" class="pill">—</span></div>
+            <div id="dictExplain" class="muted" style="margin-top:10px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>3) if/else: чётное или нечётное</h3>
+        <label>Введите число</label>
+        <input id="ifNum" placeholder="например 7" />
+        <button id="btnIfCheck">Проверить</button>
+        <div style="margin-top:12px;">
+          <div><b>Результат:</b> <span id="ifOut" class="pill">—</span></div>
+          <div class="muted" style="margin-top:10px;">Логика: если <code>x % 2 == 0</code>, то число чётное.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== QUIZ ===================== -->
+  <section id="quiz" class="panel" style="display:none;">
+    <div class="card">
+      <h2>Квиз “предскажи результат”</h2>
+      <div class="muted">
+        Вопросы двух типов: (1) что выведет код, (2) какой будет тип/ошибка.
+        После ответа — объяснение. Варианты ответов перемешиваются при каждом новом запуске блока.
+      </div>
+
+      <div class="subtabs">
+        <div class="subtab active" data-sub="q1">Блок 1</div>
+        <div class="subtab" data-sub="q2">Блок 2</div>
+        <div class="subtab" data-sub="qmix">Смешанный</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div id="quizBox"></div>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+        <button id="btnCheck" style="flex:1;">Проверить</button>
+        <button id="btnNext" style="flex:1;">Следующий</button>
+        <button id="btnReset" style="flex:1;">Сначала</button>
+      </div>
+
+      <div style="margin-top:12px;">
+        <div><b>Счёт:</b> <span id="score" class="pill">0/0</span></div>
+        <div id="feedback" style="margin-top:10px;"></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+  // ========== Tabs ==========
+  const topTabs = document.querySelectorAll('.tab');
+  const topPanels = {
+    theory: document.getElementById('theory'),
+    play: document.getElementById('play'),
+    quiz: document.getElementById('quiz'),
+  };
+  topTabs.forEach(t => t.addEventListener('click', () => {
+    topTabs.forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    const id = t.dataset.tab;
+    Object.keys(topPanels).forEach(k => topPanels[k].style.display = (k === id ? '' : 'none'));
+  }));
+
+  function wireSubtabs(scopeEl) {
+    const subtabs = scopeEl.querySelectorAll('.subtab');
+    subtabs.forEach(st => st.addEventListener('click', () => {
+      subtabs.forEach(x => x.classList.remove('active'));
+      st.classList.add('active');
+      const id = st.dataset.sub;
+      scopeEl.querySelectorAll('.subpanel').forEach(p => p.style.display = (p.id === id ? '' : 'none'));
+    }));
+  }
+  wireSubtabs(document.getElementById('theory'));
+  wireSubtabs(document.getElementById('play'));
+  wireSubtabs(document.getElementById('quiz'));
+
+  // ========== Play: Block 1 ==========
+  document.getElementById('btnPlaySum').addEventListener('click', () => {
+    const a = document.getElementById('pa').value;
+    const b = document.getElementById('pb').value;
+
+    const asStr = a + b;
+
+    let asInt = "ошибка";
+    let asFloat = "ошибка";
+
+    const ai = Number.parseInt(a, 10);
+    const bi = Number.parseInt(b, 10);
+    if (!Number.isNaN(ai) && !Number.isNaN(bi) && String(ai) === a.trim() && String(bi) === b.trim()) {
+      asInt = String(ai + bi);
+    } else {
+      asInt = "int(...) не получилось (нужны целые строки)";
+    }
+
+    const af = Number.parseFloat(a);
+    const bf = Number.parseFloat(b);
+    if (!Number.isNaN(af) && !Number.isNaN(bf)) {
+      asFloat = String(af + bf);
+    } else {
+      asFloat = "float(...) не получилось (нужны числа)";
+    }
+
+    document.getElementById('outConcat').textContent = asStr;
+    document.getElementById('outInt').textContent = asInt;
+    document.getElementById('outFloat').textContent = asFloat;
+
+    document.getElementById('outSumExplain').innerHTML =
+      `В Python оператор <code>+</code> зависит от типа: для <b>str</b> — склейка, для <b>int/float</b> — сумма.`;
+  });
+
+  document.getElementById('btnPlayStr').addEventListener('click', () => {
+    const s = document.getElementById('ps').value;
+    const strip = s.trim();
+    document.getElementById('outStrip').textContent = JSON.stringify(strip);
+    document.getElementById('outLower').textContent = JSON.stringify(strip.toLowerCase());
+    document.getElementById('outUpper').textContent = JSON.stringify(strip.toUpperCase());
+    document.getElementById('outSplit').textContent = JSON.stringify(strip.split(/\s+/).filter(x => x.length));
+    document.getElementById('outLen').textContent = String(strip.length);
+  });
+
+  // Dynamic typing demo (conceptual)
+  const dynVal = document.getElementById('dynVal');
+  const dynType = document.getElementById('dynType');
+  const dynExplain = document.getElementById('dynExplain');
+
+  document.getElementById('btnDyn1').addEventListener('click', () => {
+    dynVal.textContent = "10";
+    dynType.textContent = "int";
+    dynExplain.innerHTML = `x хранит число 10. Теперь <code>x + 1</code> — это 11.`;
+  });
+  document.getElementById('btnDyn2').addEventListener('click', () => {
+    dynVal.textContent = '"10"';
+    dynType.textContent = "str";
+    dynExplain.innerHTML = `Теперь x — строка. <code>x + "1"</code> склеит строки: получится "101".`;
+  });
+  document.getElementById('btnDyn3').addEventListener('click', () => {
+    dynVal.textContent = "[10, 20]";
+    dynType.textContent = "list";
+    dynExplain.innerHTML = `Теперь x — список. Можно делать <code>len(x)</code>, индексацию <code>x[0]</code>, <code>append</code>.`;
+  });
+
+  // ========== Play: Block 2 ==========
+  let listState = [10, 20, 30];
+  function renderList() {
+    document.getElementById('listView').textContent = JSON.stringify(listState);
+    document.getElementById('listFirst').textContent = String(listState[0]);
+    document.getElementById('listLast').textContent = String(listState[listState.length - 1]);
+    document.getElementById('listLen').textContent = String(listState.length);
+  }
+  document.getElementById('btnListInit').addEventListener('click', () => {
+    listState = [10, 20, 30];
+    renderList();
+  });
+  document.getElementById('btnListAdd').addEventListener('click', () => {
+    const v = Number.parseInt(document.getElementById('listAdd').value, 10);
+    if (!Number.isNaN(v)) listState.push(v);
+    renderList();
+  });
+  renderList();
+
+  let dictState = { name: "Маша", age: 20 };
+  function renderDict() {
+    document.getElementById('dictView').textContent = JSON.stringify(dictState);
+  }
+  document.getElementById('btnDictInit').addEventListener('click', () => {
+    dictState = { name: "Маша", age: 20 };
+    renderDict();
+    document.getElementById('dictOut').textContent = "—";
+    document.getElementById('dictExplain').textContent = "";
+  });
+  document.getElementById('btnDictSet').addEventListener('click', () => {
+    const k = document.getElementById('dictKey').value.trim();
+    const v = document.getElementById('dictVal').value;
+    if (k.length) dictState[k] = v;
+    renderDict();
+  });
+  document.getElementById('btnDictGet').addEventListener('click', () => {
+    const k = document.getElementById('dictGet').value.trim();
+    const v = Object.prototype.hasOwnProperty.call(dictState, k) ? dictState[k] : null;
+    document.getElementById('dictOut').textContent = (v === null ? "None" : JSON.stringify(v));
+    document.getElementById('dictExplain').innerHTML =
+      (v === null)
+        ? `Ключа нет → <code>get</code> вернул бы <code>None</code> (в Python).`
+        : `Ключ найден → вернули значение.`;
+  });
+  renderDict();
+
+  document.getElementById('btnIfCheck').addEventListener('click', () => {
+    const x = Number.parseInt(document.getElementById('ifNum').value, 10);
+    if (Number.isNaN(x)) {
+      document.getElementById('ifOut').textContent = "введите число";
+      return;
+    }
+    document.getElementById('ifOut').textContent = (x % 2 === 0) ? "четное" : "нечетное";
+  });
+
+  // ========== Quiz ==========
+  const bank1 = [
+    { q:`Что выведет?\n\nx = 5\nx = x + 2\nprint(x)`, options:["5","7","52","Ошибка"], correct:1,
+      explain:`x перезаписывается: 5 → 7.` },
+    { q:`Что выведет?\n\nprint("2" + "3")`, options:["5","23","6","Ошибка"], correct:1,
+      explain:`Строки склеиваются: "2"+"3" = "23".` },
+    { q:`Что выведет?\n\nprint("ha" * 3)`, options:["ha3","hahaha","Ошибка","ha ha ha"], correct:1,
+      explain:`Умножение строки повторяет её.` },
+    { q:`Какой тип у значения?\n\nx = 3.0\nprint(type(x))`, options:["int","float","str","bool"], correct:1,
+      explain:`3.0 — это float.` },
+    { q:`Что выведет?\n\ns = "  Hi  "\nprint(s.strip())`, options:[`"  Hi  "`,`"Hi"`,`"hi"`,`Ошибка`], correct:1,
+      explain:`strip() убирает пробелы по краям.` },
+    { q:`Что выведет?\n\nprint(len("abc"))`, options:["2","3","4","Ошибка"], correct:1,
+      explain:`Длина "abc" равна 3.` },
+    { q:`Динамическая типизация. Что выведет?\n\nx = 10\nx = "10"\nprint(type(x))`, options:["int","float","str","Ошибка"], correct:2,
+      explain:`x перезаписали строкой, тип стал str.` },
+  ];
+
+  const bank2 = [
+    { q:`Что выведет?\n\nnums = [10, 20, 30]\nprint(nums[0])`, options:["10","20","30","Ошибка"], correct:0,
+      explain:`Индекс 0 — первый элемент.` },
+    { q:`Что выведет?\n\nnums = [10, 20, 30]\nprint(nums[-1])`, options:["10","20","30","Ошибка"], correct:2,
+      explain:`Индекс -1 — последний элемент.` },
+    { q:`Что выведет?\n\nperson = {"name":"Маша","age":20}\nprint(person["age"])`, options:["Маша","20","age","Ошибка"], correct:1,
+      explain:`Доступ по ключу "age" даёт 20.` },
+    { q:`Что выведет?\n\nperson = {"name":"Маша"}\nprint(person.get("age"))`, options:["KeyError","None","0","False"], correct:1,
+      explain:`get вернёт None, если ключа нет.` },
+    { q:`Что выведет?\n\nx = 7\nif x % 2 == 0:\n    print("A")\nelse:\n    print("B")`, options:["A","B","ничего","Ошибка"], correct:1,
+      explain:`7%2 != 0, значит ветка else.` },
+  ];
+
+  const bankMix = [
+    { q:`Что выведет?\n\nx = "2"\ny = 3\nprint(x * y)`, options:["6","222","23","Ошибка"], correct:1,
+      explain:`Строка "2" * 3 повторится 3 раза: "222".` },
+    { q:`Что выведет?\n\ns = "a b c"\nwords = s.split()\nprint(len(words))`, options:["2","3","5","Ошибка"], correct:1,
+      explain:`split() даст ["a","b","c"], длина = 3.` },
+    { q:`Что выведет?\n\nnums = [1,2]\nnums.append(3)\nprint(nums)`, options:["[1,2]","[1,2,3]","[1,2][3]","Ошибка"], correct:1,
+      explain:`append добавляет элемент в конец.` },
+    { q:`Что выведет?\n\nperson = {"age": 17}\nif person["age"] >= 18:\n    print("ok")\nelse:\n    print("no")`, options:["ok","no","None","Ошибка"], correct:1,
+      explain:`17 < 18, значит else.` },
+  ];
+
+
+  function shuffleQuestion(item) {
+    const pairs = item.options.map((option, index) => ({
+      option,
+      isCorrect: index === item.correct
+    }));
+
+    for (let i = pairs.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pairs[i], pairs[j]] = [pairs[j], pairs[i]];
+    }
+
+    return {
+      ...item,
+      options: pairs.map(x => x.option),
+      correct: pairs.findIndex(x => x.isCorrect)
+    };
+  }
+
+  function shuffledBank(bank) {
+    return bank.map(shuffleQuestion);
+  }
+
+  let currentBank = shuffledBank(bank1);
+  let idx = 0;
+  let scoreOk = 0;
+  let scoreTotal = 0;
+
+  function setQuizBank(which) {
+    const sourceBank = (which === "q1") ? bank1 : (which === "q2") ? bank2 : bankMix;
+    currentBank = shuffledBank(sourceBank);
+    idx = 0;
+    scoreOk = 0;
+    scoreTotal = 0;
+    renderQuiz();
+  }
+
+  // hook subtabs for quiz
+  document.querySelectorAll('#quiz .subtab').forEach(st => {
+    st.addEventListener('click', () => {
+      setQuizBank(st.dataset.sub);
+    });
+  });
+
+  function renderQuiz() {
+    const item = currentBank[idx];
+    const box = document.getElementById('quizBox');
+    box.innerHTML = `
+      <div class="muted">Вопрос ${idx+1} из ${currentBank.length}</div>
+      <pre><code>${item.q}</code></pre>
+      <div style="margin-top:10px;">
+        ${item.options.map((opt, i) => `
+          <label style="font-weight:400; display:block; margin:6px 0;">
+            <input type="radio" name="quiz" value="${i}" style="width:auto; margin-right:8px;">
+            ${opt}
+          </label>
+        `).join("")}
+      </div>
+    `;
+    document.getElementById('feedback').innerHTML = "";
+    document.getElementById('score').textContent = `${scoreOk}/${scoreTotal}`;
+  }
+
+  function getSelected() {
+    const el = document.querySelector('input[name="quiz"]:checked');
+    return el ? Number(el.value) : null;
+  }
+
+  document.getElementById('btnCheck').addEventListener('click', () => {
+    const sel = getSelected();
+    const item = currentBank[idx];
+    if (sel === null) {
+      document.getElementById('feedback').innerHTML = `<span class="bad">Выберите вариант.</span>`;
+      return;
+    }
+    scoreTotal += 1;
+    if (sel === item.correct) {
+      scoreOk += 1;
+      document.getElementById('feedback').innerHTML = `<div class="ok">Верно.</div><div class="muted">${item.explain}</div>`;
+    } else {
+      document.getElementById('feedback').innerHTML = `<div class="bad">Неверно.</div><div class="muted">${item.explain}</div>`;
+    }
+    document.getElementById('score').textContent = `${scoreOk}/${scoreTotal}`;
+  });
+
+  document.getElementById('btnNext').addEventListener('click', () => {
+    idx = (idx + 1) % currentBank.length;
+    renderQuiz();
+  });
+
+  document.getElementById('btnReset').addEventListener('click', () => {
+    idx = 0;
+    scoreOk = 0;
+    scoreTotal = 0;
+    renderQuiz();
+  });
+
+  // initial render
+  renderQuiz();
+</script>
+</body>
+</html>

@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Python — циклы, функции и объектная модель</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 24px; line-height: 1.4; }
+    .wrap { max-width: 1050px; margin: 0 auto; }
+    h1 { font-size: 22px; margin: 0 0 10px; }
+    h2 { font-size: 18px; margin: 0 0 8px; }
+    h3 { font-size: 16px; margin: 14px 0 6px; }
+    .muted { color: #666; font-size: 13px; }
+    .tabs, .subtabs { display:flex; gap:8px; margin: 14px 0; flex-wrap: wrap; }
+    .tab, .subtab { padding: 8px 12px; border: 1px solid #ccc; border-radius: 10px; cursor: pointer; user-select: none; }
+    .subtab { padding: 6px 10px; border-radius: 999px; font-size: 13px; }
+    .tab.active, .subtab.active { border-color: #000; font-weight: 600; }
+    .card { border: 1px solid #ddd; border-radius: 14px; padding: 14px; margin: 12px 0; }
+    .row { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 920px) { .row { grid-template-columns: 1fr; } }
+    button, select, input { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #ccc; font-size: 14px; }
+    button { cursor:pointer; }
+    pre { background:#f7f7f7; padding: 10px; border-radius: 12px; overflow:auto; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .pill { display:inline-block; padding: 2px 10px; border-radius: 999px; border: 1px solid #ddd; font-size: 12px; margin-left: 8px; }
+    .ok { color:#0a7; font-weight: 700; }
+    .bad { color:#c33; font-weight: 700; }
+    .note { background:#fff7e6; border:1px solid #ffe2a8; padding:10px; border-radius:12px; }
+    .hr { height:1px; background:#eee; margin:12px 0; }
+    table { border-collapse: collapse; width:100%; }
+    th, td { border:1px solid #ddd; padding:8px; text-align:left; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Интерактив : циклы, функции и объектная модель</h1>
+  <div class="muted">
+    Цель — закрепить базовый Python и научиться читать объектный синтаксис, который дальше постоянно встретится в NumPy и Pandas.
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="theory">Теория</div>
+    <div class="tab" data-tab="play">Поиграть</div>
+    <div class="tab" data-tab="quiz">Квиз</div>
+  </div>
+
+  <section id="theory" class="panel">
+    <div class="card">
+      <div class="subtabs">
+        <div class="subtab active" data-sub="t1">Циклы</div>
+        <div class="subtab" data-sub="t2">Функции</div>
+        <div class="subtab" data-sub="t3">Объекты</div>
+      </div>
+    </div>
+
+    <div id="t1" class="subpanel">
+      <div class="card">
+        <h2>1. Циклы: три схемы, которые нужны постоянно</h2>
+        <div class="note">Сначала учимся видеть алгоритм. Короткая запись важна меньше, чем понимание того, что происходит на каждом шаге.</div>
+
+        <h3>Счётчик</h3>
+        <pre><code>count = 0
+
+for value in values:
+    if value &gt; 0:
+        count += 1</code></pre>
+
+        <h3>Накопление суммы</h3>
+        <pre><code>total = 0
+
+for value in values:
+    total += value</code></pre>
+
+        <h3>Формирование нового списка</h3>
+        <pre><code>result = []
+
+for value in values:
+    if value &gt; 0:
+        result.append(value)</code></pre>
+
+        <h3>Список словарей</h3>
+        <pre><code>users = [
+    {"name": "Анна", "age": 25},
+    {"name": "Иван", "age": 17},
+]
+
+for user in users:
+    if user["age"] &gt;= 18:
+        print(user["name"])</code></pre>
+      </div>
+    </div>
+
+    <div id="t2" class="subpanel" style="display:none;">
+      <div class="card">
+        <h2>2. Функции: упаковываем знакомую логику</h2>
+
+        <h3>Параметр, аргумент и return</h3>
+        <pre><code>def is_adult(age):
+    return age &gt;= 18
+
+result = is_adult(25)</code></pre>
+        <ul>
+          <li><code>age</code> в определении — параметр;</li>
+          <li><code>25</code> в вызове — аргумент;</li>
+          <li><code>return</code> возвращает значение в программу.</li>
+        </ul>
+
+        <h3>Функция с условием</h3>
+        <pre><code>def classify_age(age):
+    if age &lt; 18:
+        return "minor"
+    elif age &lt; 65:
+        return "adult"
+    return "senior"</code></pre>
+
+        <h3>Функция с циклом</h3>
+        <pre><code>def count_adults(ages):
+    count = 0
+
+    for age in ages:
+        if age &gt;= 18:
+            count += 1
+
+    return count</code></pre>
+
+        <h3>Одна функция вызывает другую</h3>
+        <pre><code>def normalize_city(city):
+    return city.strip().lower()
+
+def is_moscow(city):
+    return normalize_city(city) == "москва"</code></pre>
+
+        <div class="note">
+          Хорошая функция обычно решает одну понятную задачу. Это делает код проще для чтения, проверки и повторного использования.
+        </div>
+      </div>
+    </div>
+
+    <div id="t3" class="subpanel" style="display:none;">
+      <div class="card">
+        <h2>3. Объекты: что важно перед NumPy и Pandas</h2>
+
+        <h3>Класс и объект</h3>
+        <pre><code>class Student:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+student = Student("Анна", 25)</code></pre>
+
+        <ul>
+          <li><code>Student</code> — класс;</li>
+          <li><code>student</code> — объект;</li>
+          <li><code>student.name</code> и <code>student.age</code> — атрибуты.</li>
+        </ul>
+
+        <h3>Метод</h3>
+        <pre><code>class Student:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+    def introduce(self):
+        return f"Меня зовут {self.name}"
+
+student = Student("Анна", 25)
+student.introduce()</code></pre>
+
+        <h3>Где нужны круглые скобки?</h3>
+        <table>
+          <tr><th>Запись</th><th>Что это</th></tr>
+          <tr><td><code>len(values)</code></td><td>вызов функции</td></tr>
+          <tr><td><code>values.append(4)</code></td><td>вызов метода</td></tr>
+          <tr><td><code>student.age</code></td><td>чтение атрибута</td></tr>
+          <tr><td><code>student.introduce()</code></td><td>вызов метода</td></tr>
+          <tr><td><code>Student("Анна", 25)</code></td><td>вызов класса и создание объекта</td></tr>
+        </table>
+
+        <div class="note" style="margin-top:12px;">
+          Упрощённое правило для начала: <b>круглые скобки означают вызов</b>. Атрибут просто читаем — поэтому скобок нет.
+        </div>
+
+        <h3>Переход к Pandas</h3>
+        <pre><code>data = pd.DataFrame(records)
+
+data.shape
+data.columns
+
+data.head()
+data.sort_values("age")
+
+data["age"]</code></pre>
+
+        <ul>
+          <li><code>pd.DataFrame(...)</code> — вызов класса;</li>
+          <li><code>data.shape</code> — атрибут;</li>
+          <li><code>data.head()</code> — метод;</li>
+          <li><code>data["age"]</code> — индексация.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="play" class="panel" style="display:none;">
+    <div class="row">
+      <div class="card">
+        <h2>Собери цикл</h2>
+        <div class="muted">Выберите, какой шаблон нужен для задачи.</div>
+        <select id="loopTask">
+          <option value="count">Сколько чисел больше нуля?</option>
+          <option value="sum">Какова сумма всех значений?</option>
+          <option value="list">Получить только положительные значения</option>
+        </select>
+        <button id="showLoop" style="margin-top:10px;">Показать схему</button>
+        <pre><code id="loopOut">—</code></pre>
+      </div>
+
+      <div class="card">
+        <h2>Функция или метод?</h2>
+        <select id="expr">
+          <option value="len">len(values)</option>
+          <option value="append">values.append(4)</option>
+          <option value="age">student.age</option>
+          <option value="intro">student.introduce()</option>
+          <option value="class">Student("Анна", 25)</option>
+        </select>
+        <button id="classifyExpr" style="margin-top:10px;">Разобрать</button>
+        <div id="exprOut" class="note" style="margin-top:10px;">—</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Предскажи return</h2>
+      <pre><code>def classify_age(age):
+    if age &lt; 18:
+        return "minor"
+    elif age &lt; 65:
+        return "adult"
+    return "senior"</code></pre>
+      <input id="ageInput" type="number" placeholder="Введите возраст, например 25" />
+      <button id="ageBtn" style="margin-top:10px;">Вызвать функцию</button>
+      <div style="margin-top:10px;"><b>Результат:</b> <span id="ageOut" class="pill">—</span></div>
+    </div>
+  </section>
+
+  <section id="quiz" class="panel" style="display:none;">
+    <div class="card">
+      <h2>Квиз «предскажи результат»</h2>
+      <div class="muted">
+        Варианты ответов перемешиваются при каждом запуске блока. После ответа показывается объяснение.
+      </div>
+      <div class="subtabs">
+        <div class="subtab active" data-sub="q1">Циклы</div>
+        <div class="subtab" data-sub="q2">Функции</div>
+        <div class="subtab" data-sub="q3">Объекты</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div id="quizBox"></div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+        <button id="btnCheck" style="flex:1;">Проверить</button>
+        <button id="btnNext" style="flex:1;">Следующий</button>
+        <button id="btnReset" style="flex:1;">Сначала</button>
+      </div>
+      <div style="margin-top:12px;">
+        <div><b>Счёт:</b> <span id="score" class="pill">0/0</span></div>
+        <div id="feedback" style="margin-top:10px;"></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+  const topTabs = document.querySelectorAll('.tab');
+  const topPanels = {
+    theory: document.getElementById('theory'),
+    play: document.getElementById('play'),
+    quiz: document.getElementById('quiz')
+  };
+
+  topTabs.forEach(t => t.addEventListener('click', () => {
+    topTabs.forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    const id = t.dataset.tab;
+    Object.keys(topPanels).forEach(k => topPanels[k].style.display = (k === id ? '' : 'none'));
+  }));
+
+  function wireSubtabs(scopeEl) {
+    const subtabs = scopeEl.querySelectorAll('.subtab');
+    subtabs.forEach(st => st.addEventListener('click', () => {
+      subtabs.forEach(x => x.classList.remove('active'));
+      st.classList.add('active');
+      const id = st.dataset.sub;
+      scopeEl.querySelectorAll('.subpanel').forEach(p => p.style.display = (p.id === id ? '' : 'none'));
+    }));
+  }
+  wireSubtabs(document.getElementById('theory'));
+
+  document.getElementById('showLoop').addEventListener('click', () => {
+    const v = document.getElementById('loopTask').value;
+    const examples = {
+      count: `count = 0\n\nfor value in values:\n    if value > 0:\n        count += 1`,
+      sum: `total = 0\n\nfor value in values:\n    total += value`,
+      list: `result = []\n\nfor value in values:\n    if value > 0:\n        result.append(value)`
+    };
+    document.getElementById('loopOut').textContent = examples[v];
+  });
+
+  document.getElementById('classifyExpr').addEventListener('click', () => {
+    const v = document.getElementById('expr').value;
+    const answers = {
+      len: '<code>len(values)</code> — вызов функции.',
+      append: '<code>values.append(4)</code> — вызов метода объекта <code>values</code>.',
+      age: '<code>student.age</code> — чтение атрибута. Круглых скобок нет.',
+      intro: '<code>student.introduce()</code> — вызов метода.',
+      class: '<code>Student("Анна", 25)</code> — вызов класса, который создаёт объект.'
+    };
+    document.getElementById('exprOut').innerHTML = answers[v];
+  });
+
+  document.getElementById('ageBtn').addEventListener('click', () => {
+    const age = Number(document.getElementById('ageInput').value);
+    let out = 'senior';
+    if (age < 18) out = 'minor';
+    else if (age < 65) out = 'adult';
+    document.getElementById('ageOut').textContent = out;
+  });
+
+  const bank1 = [
+    { q:`Что выведет?\n\ncount = 0\nfor x in [1, -2, 3]:\n    if x > 0:\n        count += 1\nprint(count)`,
+      options:["1","2","3","Ошибка"], correct:1, explain:`Положительные значения: 1 и 3, поэтому счётчик равен 2.` },
+    { q:`Что выведет?\n\nresult = []\nfor x in [1, 2, 3]:\n    if x % 2 == 1:\n        result.append(x)\nprint(result)`,
+      options:["[1, 2, 3]","[2]","[1, 3]","Ошибка"], correct:2, explain:`В список добавляются только нечётные числа.` },
+    { q:`Что выведет?\n\ntotal = 0\nfor x in [10, 20, 30]:\n    total += x\nprint(total)`,
+      options:["30","60","0","Ошибка"], correct:1, explain:`Накапливаем 10 + 20 + 30 = 60.` }
+  ];
+
+  const bank2 = [
+    { q:`Что выведет?\n\ndef double(x):\n    return x * 2\n\nprint(double(4))`,
+      options:["4","6","8","None"], correct:2, explain:`Функция возвращает 4 * 2 = 8.` },
+    { q:`Что выведет?\n\ndef f(x):\n    print(x * 2)\n\nresult = f(3)\nprint(result)`,
+      options:["6, затем None","3, затем 6","6, затем 6","Ошибка"], correct:0, explain:`print внутри функции показывает 6, но без return функция возвращает None.` },
+    { q:`Что вернёт?\n\ndef is_adult(age):\n    return age >= 18\n\nis_adult(17)`,
+      options:["17","True","False","None"], correct:2, explain:`17 >= 18 даёт False.` },
+    { q:`Что выведет?\n\ndef normalize(s):\n    return s.strip().lower()\n\nprint(normalize("  МОСКВА "))`,
+      options:["МОСКВА","москва","  москва ","Ошибка"], correct:1, explain:`strip убирает крайние пробелы, lower приводит строку к нижнему регистру.` }
+  ];
+
+  const bank3 = [
+    { q:`Что такое student.age в выражении?\n\nstudent.age`,
+      options:["вызов функции","вызов метода","атрибут","класс"], correct:2, explain:`Это чтение атрибута объекта student.` },
+    { q:`Что такое student.introduce()?\n\nstudent.introduce()`,
+      options:["атрибут","вызов метода","индексация","класс"], correct:1, explain:`introduce — метод, круглые скобки означают его вызов.` },
+    { q:`Что происходит здесь?\n\nstudent = Student("Анна", 25)`,
+      options:["индексация","вызов класса и создание объекта","чтение атрибута","вызов встроенной функции"], correct:1, explain:`Student вызывается как класс; результат — новый объект.` },
+    { q:`Как правильно описать data.shape?`,
+      options:["метод","атрибут","функция","индексация"], correct:1, explain:`shape читается без круглых скобок — это атрибут объекта.` },
+    { q:`Как правильно описать data.head()?`,
+      options:["атрибут","индексация","вызов метода","класс"], correct:2, explain:`head связан с объектом data и вызывается круглыми скобками.` }
+  ];
+
+  function shuffleQuestion(item) {
+    const pairs = item.options.map((option, index) => ({
+      option,
+      isCorrect: index === item.correct
+    }));
+    for (let i = pairs.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pairs[i], pairs[j]] = [pairs[j], pairs[i]];
+    }
+    return {
+      ...item,
+      options: pairs.map(x => x.option),
+      correct: pairs.findIndex(x => x.isCorrect)
+    };
+  }
+
+  function shuffledBank(bank) {
+    return bank.map(shuffleQuestion);
+  }
+
+  let currentBank = shuffledBank(bank1);
+  let idx = 0;
+  let scoreOk = 0;
+  let scoreTotal = 0;
+  let checked = false;
+
+  function setQuizBank(which) {
+    const source = which === "q1" ? bank1 : which === "q2" ? bank2 : bank3;
+    currentBank = shuffledBank(source);
+    idx = 0;
+    scoreOk = 0;
+    scoreTotal = 0;
+    checked = false;
+    renderQuiz();
+  }
+
+  document.querySelectorAll('#quiz .subtab').forEach(st => {
+    st.addEventListener('click', () => {
+      document.querySelectorAll('#quiz .subtab').forEach(x => x.classList.remove('active'));
+      st.classList.add('active');
+      setQuizBank(st.dataset.sub);
+    });
+  });
+
+  function renderQuiz() {
+    const item = currentBank[idx];
+    checked = false;
+    document.getElementById('quizBox').innerHTML = `
+      <div class="muted">Вопрос ${idx+1} из ${currentBank.length}</div>
+      <pre><code>${item.q}</code></pre>
+      <div style="margin-top:10px;">
+        ${item.options.map((opt, i) => `
+          <label style="font-weight:400; display:block; margin:6px 0;">
+            <input type="radio" name="quiz" value="${i}" style="width:auto; margin-right:8px;">
+            ${opt}
+          </label>
+        `).join("")}
+      </div>`;
+    document.getElementById('feedback').innerHTML = "";
+    document.getElementById('score').textContent = `${scoreOk}/${scoreTotal}`;
+  }
+
+  function getSelected() {
+    const el = document.querySelector('input[name="quiz"]:checked');
+    return el ? Number(el.value) : null;
+  }
+
+  document.getElementById('btnCheck').addEventListener('click', () => {
+    if (checked) return;
+    const sel = getSelected();
+    const item = currentBank[idx];
+    if (sel === null) {
+      document.getElementById('feedback').innerHTML = `<span class="bad">Выберите вариант.</span>`;
+      return;
+    }
+    checked = true;
+    scoreTotal += 1;
+    if (sel === item.correct) {
+      scoreOk += 1;
+      document.getElementById('feedback').innerHTML = `<div class="ok">Верно.</div><div class="muted">${item.explain}</div>`;
+    } else {
+      document.getElementById('feedback').innerHTML = `<div class="bad">Неверно.</div><div class="muted">${item.explain}</div>`;
+    }
+    document.getElementById('score').textContent = `${scoreOk}/${scoreTotal}`;
+  });
+
+  document.getElementById('btnNext').addEventListener('click', () => {
+    idx = (idx + 1) % currentBank.length;
+    renderQuiz();
+  });
+
+  document.getElementById('btnReset').addEventListener('click', () => {
+    setQuizBank(
+      document.querySelector('#quiz .subtab.active').dataset.sub
+    );
+  });
+
+  renderQuiz();
+</script>
+</body>
+</html>

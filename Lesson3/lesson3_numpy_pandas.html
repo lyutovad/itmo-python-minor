@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NumPy → Pandas: от массива к таблице</title>
+<style>
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:24px;line-height:1.42}
+.wrap{max-width:1050px;margin:auto}.tabs,.subtabs{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.tab,.subtab{padding:8px 12px;border:1px solid #ccc;border-radius:10px;cursor:pointer}
+.subtab{padding:6px 10px;border-radius:999px;font-size:13px}.active{border-color:#000;font-weight:600}
+.card{border:1px solid #ddd;border-radius:14px;padding:14px;margin:12px 0}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:900px){.row{grid-template-columns:1fr}}
+.note{background:#fff7e6;border:1px solid #ffe2a8;padding:10px;border-radius:12px}
+pre{background:#f7f7f7;padding:10px;border-radius:12px;overflow:auto}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+button,select,input{width:100%;padding:10px;border:1px solid #ccc;border-radius:10px;font-size:14px}
+button{cursor:pointer}.muted{color:#666;font-size:13px}.ok{color:#087f5b;font-weight:700}.bad{color:#c33;font-weight:700}
+.pill{display:inline-block;padding:2px 10px;border:1px solid #ddd;border-radius:999px;font-size:12px}
+table{width:100%;border-collapse:collapse}th,td{border:1px solid #ddd;padding:8px;text-align:left}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>NumPy → Pandas: от массива к таблице</h1>
+<div class="muted">Краткая методичка к занятию. Главная линия: список Python → массив NumPy → таблица Pandas.</div>
+
+<div class="tabs">
+<div class="tab active" data-tab="theory">Теория</div>
+<div class="tab" data-tab="play">Поиграть</div>
+<div class="tab" data-tab="quiz">Квиз</div>
+</div>
+
+<section id="theory" class="panel">
+<div class="card">
+<div class="note"><b>Идея занятия:</b> NumPy показывает работу с массивом и логическими масками; Pandas переносит те же идеи на таблицы с именованными столбцами.</div>
+<div class="subtabs">
+<div class="subtab active" data-sub="numpy">NumPy</div>
+<div class="subtab" data-sub="pandas">Pandas</div>
+<div class="subtab" data-sub="bridge">Связь</div>
+</div>
+</div>
+
+<div id="numpy" class="subpanel">
+<div class="card">
+<h2>NumPy: минимальный набор</h2>
+<p>Список Python универсален. Массив NumPy удобен для одинаковых операций над набором чисел.</p>
+<pre><code>values_list = [10, 20, 30]
+values_list * 2
+# [10, 20, 30, 10, 20, 30]
+
+import numpy as np
+values = np.array([10, 20, 30])
+values * 2
+# array([20, 40, 60])</code></pre>
+
+<h3>Атрибуты массива</h3>
+<table>
+<tr><th>Запись</th><th>Смысл</th></tr>
+<tr><td><code>array.dtype</code></td><td>тип элементов</td></tr>
+<tr><td><code>array.shape</code></td><td>форма массива</td></tr>
+<tr><td><code>array.ndim</code></td><td>число измерений</td></tr>
+<tr><td><code>array.size</code></td><td>общее число элементов</td></tr>
+</table>
+
+<h3>Индексация и агрегаты</h3>
+<pre><code>values[0]
+values[-1]
+values[1:4]
+
+values.sum()
+values.mean()
+values.min()
+values.max()</code></pre>
+
+<h3>Логическая маска</h3>
+<pre><code>scores = np.array([45, 67, 82, 51, 90, 73])
+
+scores >= 60
+# [False, True, True, False, True, True]
+
+scores[scores >= 60]
+# [67, 82, 90, 73]</code></pre>
+
+<p>Несколько условий:</p>
+<pre><code>scores[(scores >= 60) &amp; (scores &lt; 80)]</code></pre>
+
+<h3>Двумерный массив</h3>
+<pre><code>data = np.array([
+    [25, 1200],
+    [31, 2300],
+    [22, 900],
+])
+
+data.shape   # (3, 2)
+data[:, 0]   # первый столбец</code></pre>
+<div class="note">NumPy видит строки и столбцы, но не знает их смысл. Для обычной таблицы удобнее Pandas.</div>
+</div>
+</div>
+
+<div id="pandas" class="subpanel" style="display:none">
+<div class="card">
+<h2>Pandas: первый DataFrame</h2>
+<pre><code>import pandas as pd
+
+records = [
+    {"name": "Анна", "age": 25, "city": "Москва"},
+    {"name": "Иван", "age": 17, "city": "Казань"},
+]
+
+data = pd.DataFrame(records)</code></pre>
+
+<p><code>DataFrame</code> — класс, а <code>data</code> — созданный объект таблицы.</p>
+
+<h3>Первичный осмотр</h3>
+<pre><code>data.shape
+data.columns
+data.dtypes
+data.head()</code></pre>
+
+<table>
+<tr><th>Запись</th><th>Что это</th></tr>
+<tr><td><code>data.shape</code></td><td>атрибут</td></tr>
+<tr><td><code>data.columns</code></td><td>атрибут</td></tr>
+<tr><td><code>data.head()</code></td><td>метод</td></tr>
+</table>
+
+<h3>Столбцы</h3>
+<pre><code>data["age"]            # Series
+data[["name", "age"]]  # DataFrame</code></pre>
+
+<h3>Фильтрация</h3>
+<pre><code>data[data["age"] >= 18]
+
+data[
+    (data["age"] >= 18)
+    &amp; (data["city"] == "Москва")
+]</code></pre>
+
+<h3>Сортировка</h3>
+<pre><code>data.sort_values("age")
+data.sort_values("age", ascending=False)</code></pre>
+<div class="note">По умолчанию <code>sort_values()</code> возвращает новый объект и не меняет исходный DataFrame.</div>
+</div>
+</div>
+
+<div id="bridge" class="subpanel" style="display:none">
+<div class="card">
+<h2>Главный мост: логическая маска</h2>
+<div class="row">
+<div>
+<h3>NumPy</h3>
+<pre><code>scores[scores >= 60]</code></pre>
+</div>
+<div>
+<h3>Pandas</h3>
+<pre><code>data[data["score"] >= 60]</code></pre>
+</div>
+</div>
+<p>В обоих случаях схема одна:</p>
+<pre><code>данные → условие → True/False → выбор подходящих элементов</code></pre>
+
+<h3>Что достаточно запомнить</h3>
+<pre><code># NumPy
+np.array(...)
+array.shape
+array.dtype
+array.mean()
+array[array > 10]
+
+# Pandas
+pd.DataFrame(...)
+data.shape
+data.columns
+data.head()
+data["column"]
+data[data["column"] > 10]
+data.sort_values("column")</code></pre>
+</div>
+</div>
+</section>
+
+<section id="play" class="panel" style="display:none">
+<div class="row">
+<div class="card">
+<h2>Список или массив?</h2>
+<select id="kind"><option value="list">Python list</option><option value="array">NumPy array</option></select>
+<button id="mult" style="margin-top:10px">Выполнить [10, 20, 30] × 2</button>
+<pre><code id="multOut">—</code></pre>
+</div>
+
+<div class="card">
+<h2>Логическая маска</h2>
+<div class="muted">Данные: [45, 67, 82, 51, 90, 73]</div>
+<input id="threshold" type="number" value="60">
+<button id="mask" style="margin-top:10px">Показать маску</button>
+<pre><code id="maskOut">—</code></pre>
+</div>
+</div>
+
+<div class="card">
+<h2>Фильтрация таблицы</h2>
+<pre><code>Анна  | 25 | Москва | 1200
+Иван  | 17 | Казань | 700
+Ольга | 31 | Москва | 1800
+Пётр  | 44 | Томск  | 2300</code></pre>
+<select id="filter">
+<option value="adult">age ≥ 18</option>
+<option value="moscow">city == "Москва"</option>
+<option value="purchase">purchase > 1000</option>
+<option value="combo">age ≥ 18 и city == "Москва"</option>
+</select>
+<button id="filterBtn" style="margin-top:10px">Отфильтровать</button>
+<pre><code id="filterOut">—</code></pre>
+</div>
+</section>
+
+<section id="quiz" class="panel" style="display:none">
+<div class="card">
+<h2>Квиз</h2>
+<div class="muted">Варианты ответов перемешиваются при каждом запуске блока.</div>
+<div class="subtabs">
+<div class="subtab active" data-sub="qn">NumPy</div>
+<div class="subtab" data-sub="qp">Pandas</div>
+<div class="subtab" data-sub="qm">Смешанный</div>
+</div>
+</div>
+
+<div class="card">
+<div id="quizBox"></div>
+<div style="display:flex;gap:10px;margin-top:12px">
+<button id="check">Проверить</button>
+<button id="next">Следующий</button>
+<button id="reset">Сначала</button>
+</div>
+<div style="margin-top:12px"><b>Счёт:</b> <span id="score" class="pill">0/0</span></div>
+<div id="feedback" style="margin-top:10px"></div>
+</div>
+</section>
+</div>
+
+<script>
+const tabs=document.querySelectorAll('.tab');
+const panels={theory:document.getElementById('theory'),play:document.getElementById('play'),quiz:document.getElementById('quiz')};
+tabs.forEach(t=>t.onclick=()=>{tabs.forEach(x=>x.classList.remove('active'));t.classList.add('active');Object.keys(panels).forEach(k=>panels[k].style.display=k===t.dataset.tab?'':'none')});
+
+document.querySelectorAll('#theory .subtab').forEach(s=>s.onclick=()=>{
+ document.querySelectorAll('#theory .subtab').forEach(x=>x.classList.remove('active'));s.classList.add('active');
+ document.querySelectorAll('#theory .subpanel').forEach(p=>p.style.display=p.id===s.dataset.sub?'':'none');
+});
+
+document.getElementById('mult').onclick=()=>{
+ const k=document.getElementById('kind').value;
+ document.getElementById('multOut').textContent=k==='list'?'[10, 20, 30, 10, 20, 30]':'[20, 40, 60]';
+};
+
+document.getElementById('mask').onclick=()=>{
+ const a=[45,67,82,51,90,73],t=Number(document.getElementById('threshold').value);
+ const m=a.map(x=>x>=t),s=a.filter(x=>x>=t);
+ document.getElementById('maskOut').textContent='mask = ['+m.map(x=>x?'True':'False').join(', ')+']\nselected = ['+s.join(', ')+']';
+};
+
+const rows=[['Анна',25,'Москва',1200],['Иван',17,'Казань',700],['Ольга',31,'Москва',1800],['Пётр',44,'Томск',2300]];
+document.getElementById('filterBtn').onclick=()=>{
+ const k=document.getElementById('filter').value;
+ let r=rows;
+ if(k==='adult')r=rows.filter(x=>x[1]>=18);
+ if(k==='moscow')r=rows.filter(x=>x[2]==='Москва');
+ if(k==='purchase')r=rows.filter(x=>x[3]>1000);
+ if(k==='combo')r=rows.filter(x=>x[1]>=18&&x[2]==='Москва');
+ document.getElementById('filterOut').textContent=r.map(x=>x.join(' | ')).join('\n');
+};
+
+const qn=[
+ {q:'Что получится?\n\nvalues = np.array([10, 20, 30])\nvalues * 2',o:['[10, 20, 30, 10, 20, 30]','[20, 40, 60]','[12, 22, 32]','Ошибка'],c:1,e:'NumPy выполняет умножение поэлементно.'},
+ {q:'Что показывает array.shape?',o:['Тип элементов','Форму массива','Среднее значение','Уникальные элементы'],c:1,e:'shape описывает форму массива.'},
+ {q:'Что вернёт scores >= 60?',o:['Отфильтрованные числа','Логическую маску True/False','Одно число','Ошибку'],c:1,e:'Сравнение массива с числом выполняется поэлементно.'},
+ {q:'Если data.shape == (3, 2), что это означает?',o:['3 строки и 2 столбца','2 строки и 3 столбца','6 измерений','3 элемента'],c:0,e:'Для двумерного массива это 3 строки и 2 столбца.'}
+];
+const qp=[
+ {q:'Что создаёт pd.DataFrame(records)?',o:['Список','Объект DataFrame','NumPy-массив','Функцию'],c:1,e:'DataFrame — класс, вызов которого создаёт объект таблицы.'},
+ {q:'Что такое data.shape?',o:['Метод','Атрибут','Функция','Индекс'],c:1,e:'shape читается без круглых скобок.'},
+ {q:'Что обычно возвращает data["age"]?',o:['Series','dict','list','tuple'],c:0,e:'Один столбец Pandas обычно представлен Series.'},
+ {q:'Как выбрать строки, где age >= 18?',o:['data[data["age"] >= 18]','data["age" >= 18]','data.age(18)','data.filter(age >= 18)'],c:0,e:'Логическая Series используется для фильтрации DataFrame.'}
+];
+const qm=[
+ {q:'Какая идея напрямую переносится из NumPy в Pandas?',o:['Логическая маска','append','try/except','tuple unpacking'],c:0,e:'Булева маска используется и в NumPy, и в Pandas.'},
+ {q:'Что общего у array.shape и data.shape?',o:['Оба методы','Оба атрибуты формы','Оба сортируют данные','Оба возвращают Series'],c:1,e:'В обоих случаях shape — атрибут.'},
+ {q:'Почему DataFrame удобнее двумерного массива для таблицы клиентов?',o:['Есть именованные столбцы и разные типы данных','Pandas хранит только числа','NumPy не умеет индексацию','DataFrame не является объектом'],c:0,e:'DataFrame организует данные как именованные столбцы.'},
+ {q:'Что здесь является методом?\n\ndata.shape\ndata.columns\ndata.head()',o:['shape','columns','head()','всё'],c:2,e:'head() вызывается круглыми скобками.'}
+];
+
+function shuffleQ(item){
+ const p=item.o.map((v,i)=>({v,ok:i===item.c}));
+ for(let i=p.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[p[i],p[j]]=[p[j],p[i]]}
+ return {...item,o:p.map(x=>x.v),c:p.findIndex(x=>x.ok)};
+}
+let key='qn',bank=qn.map(shuffleQ),idx=0,ok=0,total=0,checked=false;
+function src(k){return k==='qn'?qn:k==='qp'?qp:qm}
+function setBank(k){key=k;bank=src(k).map(shuffleQ);idx=0;ok=0;total=0;render()}
+document.querySelectorAll('#quiz .subtab').forEach(s=>s.onclick=()=>{
+ document.querySelectorAll('#quiz .subtab').forEach(x=>x.classList.remove('active'));s.classList.add('active');setBank(s.dataset.sub)
+});
+function render(){
+ checked=false;const q=bank[idx];
+ document.getElementById('quizBox').innerHTML='<div class="muted">Вопрос '+(idx+1)+' из '+bank.length+'</div><pre><code>'+q.q+'</code></pre>'+q.o.map((x,i)=>'<label style="display:block;margin:7px 0"><input type="radio" name="quiz" value="'+i+'" style="width:auto;margin-right:8px">'+x+'</label>').join('');
+ document.getElementById('feedback').innerHTML='';document.getElementById('score').textContent=ok+'/'+total;
+}
+document.getElementById('check').onclick=()=>{
+ if(checked)return;const el=document.querySelector('input[name="quiz"]:checked');if(!el){document.getElementById('feedback').innerHTML='<span class="bad">Выберите вариант.</span>';return}
+ checked=true;total++;const q=bank[idx],sel=Number(el.value);if(sel===q.c){ok++;document.getElementById('feedback').innerHTML='<div class="ok">Верно.</div><div class="muted">'+q.e+'</div>'}else{document.getElementById('feedback').innerHTML='<div class="bad">Неверно.</div><div class="muted">'+q.e+'</div>'}
+ document.getElementById('score').textContent=ok+'/'+total;
+};
+document.getElementById('next').onclick=()=>{idx=(idx+1)%bank.length;render()};
+document.getElementById('reset').onclick=()=>setBank(key);
+render();
+</script>
+</body>
+</html>

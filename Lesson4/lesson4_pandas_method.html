@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pandas: загрузка, выбор и фильтрация</title>
+<style>
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:24px;line-height:1.45}
+.wrap{max-width:1000px;margin:auto}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.tab{padding:8px 12px;border:1px solid #ccc;border-radius:10px;cursor:pointer}.active{font-weight:700;border-color:#000}
+.card{border:1px solid #ddd;border-radius:14px;padding:14px;margin:12px 0}
+pre{background:#f7f7f7;padding:10px;border-radius:12px;overflow:auto}.muted{color:#666;font-size:13px}
+.note{background:#fff7e6;border:1px solid #ffe2a8;padding:10px;border-radius:12px}
+table{width:100%;border-collapse:collapse}td,th{border:1px solid #ddd;padding:8px;text-align:left}
+button{padding:9px 12px;border:1px solid #ccc;border-radius:9px;cursor:pointer;background:white}
+.ok{color:#087f5b;font-weight:700}.bad{color:#c33;font-weight:700}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Pandas: загрузка, выбор и фильтрация</h1>
+<div class="muted">Краткая методичка к занятию 4.</div>
+
+<div class="tabs">
+<div class="tab active" data-tab="theory">Теория</div>
+<div class="tab" data-tab="quiz">Квиз</div>
+</div>
+
+<section id="theory">
+<div class="card"><div class="note"><b>Главная схема:</b> CSV → DataFrame → осмотр → выбор столбцов → маска → фильтрация → сортировка.</div></div>
+
+<div class="card"><h2>1. Загрузка</h2>
+<pre><code>import pandas as pd
+data = pd.read_csv("file.csv")</code></pre>
+<p><code>DataFrame</code> — таблица, <code>Series</code> — один столбец.</p></div>
+
+<div class="card"><h2>2. Быстрый осмотр</h2>
+<pre><code>data.shape
+data.columns
+data.dtypes
+data.head()
+data.tail()
+data.info()
+data.describe()</code></pre></div>
+
+<div class="card"><h2>3. Столбцы</h2>
+<pre><code>data["amount"]                 # Series
+data[["city", "amount"]]       # DataFrame</code></pre></div>
+
+<div class="card"><h2>4. loc и iloc</h2>
+<table>
+<tr><th></th><th>Идея</th><th>Пример</th></tr>
+<tr><td><code>iloc</code></td><td>по позиции</td><td><code>data.iloc[0:3, 0:2]</code></td></tr>
+<tr><td><code>loc</code></td><td>по метке / названию</td><td><code>data.loc[0:2, ["city","amount"]]</code></td></tr>
+</table></div>
+
+<div class="card"><h2>5. Фильтрация</h2>
+<pre><code>data[data["amount"] > 2000]
+
+data[
+    (data["city"] == "Москва")
+    &amp; (data["status"] == "paid")
+]</code></pre>
+<p>Для нескольких условий используются <code>&amp;</code> и <code>|</code>, а не <code>and</code> / <code>or</code>.</p></div>
+
+<div class="card"><h2>6. Полезные операции</h2>
+<pre><code>data["city"].isin(["Москва", "Казань"])
+data["amount"].between(1000, 3000)
+
+data["city"].unique()
+data["city"].nunique()
+data["city"].value_counts()
+
+data.sort_values("amount", ascending=False)
+data.reset_index(drop=True)</code></pre></div>
+</section>
+
+<section id="quiz" style="display:none">
+<div class="card">
+<h2>Квиз</h2>
+<div id="qbox"></div>
+<button id="check">Проверить</button>
+<button id="next">Следующий</button>
+<div id="fb" style="margin-top:10px"></div>
+</div>
+</section>
+
+<script>
+const tabs=document.querySelectorAll('.tab');
+tabs.forEach(t=>t.onclick=()=>{
+ tabs.forEach(x=>x.classList.remove('active'));t.classList.add('active');
+ document.getElementById('theory').style.display=t.dataset.tab==='theory'?'':'none';
+ document.getElementById('quiz').style.display=t.dataset.tab==='quiz'?'':'none';
+});
+
+const qs=[
+{q:'Что возвращает data["amount"]?',o:['Series','DataFrame','dict','NumPy array'],c:0,e:'Один столбец обычно является Series.'},
+{q:'Что означает iloc?',o:['Выбор по позиции','Выбор только строк','Сортировка','Группировка'],c:0,e:'iloc работает по целочисленным позициям.'},
+{q:'Как объединить два условия Pandas?',o:['and','&','&&','+'],c:1,e:'Для поэлементного логического И используется &.'},
+{q:'Что делает value_counts()?',o:['Считает частоты значений','Удаляет дубли','Сортирует','Показывает тип'],c:0,e:'value_counts() считает, сколько раз встречается каждое значение.'},
+{q:'Что делает ascending=False?',o:['Сортирует по убыванию','Сортирует по возрастанию','Удаляет индекс','Меняет тип'],c:0,e:'ascending=False задаёт порядок по убыванию.'}
+];
+let i=0;
+
+function render(){
+ const q=qs[i];
+ document.getElementById('qbox').innerHTML='<p><b>'+q.q+'</b></p>'+q.o.map((x,j)=>'<label style="display:block;margin:6px 0"><input type="radio" name="q" value="'+j+'"> '+x+'</label>').join('');
+ document.getElementById('fb').innerHTML='';
+}
+document.getElementById('check').onclick=()=>{
+ const el=document.querySelector('input[name="q"]:checked');
+ if(!el)return;
+ const q=qs[i],v=Number(el.value);
+ document.getElementById('fb').innerHTML=(v===q.c?'<div class="ok">Верно.</div>':'<div class="bad">Неверно.</div>')+'<div class="muted">'+q.e+'</div>';
+};
+document.getElementById('next').onclick=()=>{i=(i+1)%qs.length;render()};
+render();
+</script>
+</div>
+</body>
+</html>

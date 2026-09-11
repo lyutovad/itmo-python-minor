@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Визуализация данных — краткая методичка</title>
+<style>
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:24px;line-height:1.5}
+.wrap{max-width:1050px;margin:auto}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
+.tab{padding:8px 13px;border:1px solid #ccc;border-radius:10px;cursor:pointer;background:white}
+.tab.active{font-weight:700;border-color:#111}
+.card{border:1px solid #ddd;border-radius:14px;padding:16px;margin:14px 0}
+.note{background:#fff7e6;border:1px solid #ffe2a8;border-radius:12px;padding:12px}
+pre{background:#f7f7f7;padding:12px;border-radius:12px;overflow:auto}
+table{border-collapse:collapse;width:100%}
+th,td{border:1px solid #ddd;padding:9px;text-align:left;vertical-align:top}
+.muted{color:#666;font-size:13px}
+button{padding:9px 12px;border:1px solid #ccc;border-radius:9px;cursor:pointer;background:white}
+.ok{color:#087f5b;font-weight:700}
+.bad{color:#c33;font-weight:700}
+.exercise{background:#fafafa}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Визуализация данных</h1>
+<div class="muted">Краткая методичка: как выбирать график под исследовательский вопрос.</div>
+
+<div class="tabs">
+  <div class="tab active" data-tab="theory">Теория</div>
+  <div class="tab" data-tab="play">Поиграть</div>
+  <div class="tab" data-tab="quiz">Квиз</div>
+</div>
+
+<section id="theory">
+
+<div class="card">
+<div class="note">
+<b>Главная идея:</b> сначала формулируем вопрос и определяем тип переменных,
+а уже потом выбираем график.
+</div>
+</div>
+
+<div class="card">
+<h2>Matplotlib и Seaborn</h2>
+<p><b>Matplotlib</b> — базовая библиотека визуализации.</p>
+<p><b>Seaborn</b> работает поверх Matplotlib и удобен для статистических графиков и работы с Pandas DataFrame.</p>
+
+<pre><code>plt.figure(figsize=(8, 5))
+
+sns.histplot(
+    data=df,
+    x="body_mass_g",
+)
+
+plt.title("Распределение массы")
+plt.xlabel("Масса, г")
+plt.ylabel("Количество")
+plt.show()</code></pre>
+
+<p>Обычно через <code>sns</code> строим сам аналитический график, а через <code>plt</code> управляем размером и оформлением.</p>
+</div>
+
+<div class="card">
+<h2>Одна категориальная переменная</h2>
+<p>Вопрос: сколько объектов относится к каждой категории?</p>
+
+<pre><code>sns.countplot(
+    data=df,
+    x="species",
+)</code></pre>
+
+<p>Смотрим категории, частоты и возможный дисбаланс.</p>
+</div>
+
+<div class="card">
+<h2>Одна числовая переменная</h2>
+
+<h3>Histogram</h3>
+<pre><code>sns.histplot(
+    data=df,
+    x="body_mass_g",
+    bins=20,
+)</code></pre>
+
+<p>Показывает форму распределения: центр, разброс, асимметрию, несколько групп и крайние значения.</p>
+
+<h3>Boxplot</h3>
+<pre><code>sns.boxplot(
+    data=df,
+    x="body_mass_g",
+)</code></pre>
+
+<p>Удобен для быстрого обзора медианы, разброса и потенциальных выбросов.</p>
+
+<div class="note">Histogram и boxplot показывают одну числовую переменную с разных сторон.</div>
+</div>
+
+<div class="card">
+<h2>Категориальная + числовая переменная</h2>
+<p>Вопрос: отличается ли числовой показатель между группами?</p>
+
+<pre><code>sns.boxplot(
+    data=df,
+    x="species",
+    y="body_mass_g",
+)</code></pre>
+</div>
+
+<div class="card">
+<h2>Две числовые переменные</h2>
+<p>Вопрос: есть ли связь между двумя числовыми признаками?</p>
+
+<pre><code>sns.scatterplot(
+    data=df,
+    x="flipper_length_mm",
+    y="body_mass_g",
+)</code></pre>
+
+<p>Дополнительную категорию можно показать через <code>hue</code>:</p>
+
+<pre><code>sns.scatterplot(
+    data=df,
+    x="flipper_length_mm",
+    y="body_mass_g",
+    hue="species",
+)</code></pre>
+</div>
+
+<div class="card">
+<h2>Две категориальные переменные</h2>
+
+<pre><code>sns.countplot(
+    data=df,
+    x="species",
+    hue="sex",
+)</code></pre>
+
+<p><code>hue</code> добавляет дополнительное разбиение по категории.</p>
+</div>
+
+<div class="card">
+<h2>Несколько числовых признаков</h2>
+
+<pre><code>corr = df[numeric_columns].corr()
+
+sns.heatmap(
+    corr,
+    annot=True,
+    vmin=-1,
+    vmax=1,
+)</code></pre>
+
+<p><b>Важно:</b> корреляция показывает линейную связь, но сама по себе не доказывает причинность.</p>
+</div>
+
+<div class="card">
+<h2>Как выбрать график</h2>
+
+<table>
+<tr><th>Что хотим узнать?</th><th>Тип переменных</th><th>Хорошая отправная точка</th></tr>
+<tr><td>Сколько объектов каждой категории?</td><td>1 категориальная</td><td>countplot / bar</td></tr>
+<tr><td>Как распределена величина?</td><td>1 числовая</td><td>histogram</td></tr>
+<tr><td>Медиана, разброс, крайние значения?</td><td>1 числовая</td><td>boxplot</td></tr>
+<tr><td>Отличается ли величина между группами?</td><td>категория + число</td><td>boxplot</td></tr>
+<tr><td>Связаны ли две величины?</td><td>2 числовые</td><td>scatter plot</td></tr>
+<tr><td>Как связаны две категории?</td><td>2 категориальные</td><td>countplot + hue</td></tr>
+<tr><td>Какие числовые признаки связаны?</td><td>несколько числовых</td><td>correlation heatmap</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h2>Что должно быть у аналитического графика</h2>
+<ul>
+<li>тип графика соответствует вопросу;</li>
+<li>понятный заголовок;</li>
+<li>подписанные оси;</li>
+<li>единицы измерения, если они важны;</li>
+<li>легенда, если без неё график непонятен;</li>
+<li>короткий вывод после графика.</li>
+</ul>
+
+<div class="note">График без интерпретации — ещё не законченный анализ.</div>
+</div>
+
+</section>
+
+<section id="play" style="display:none">
+
+<div class="card exercise">
+<h2>1. Выберите график</h2>
+<p>Нужно исследовать распределение возраста пассажиров.</p>
+<details><summary>Проверить идею</summary>
+<p>Возраст — числовая переменная. Хорошая отправная точка — histogram; дополнительно можно посмотреть boxplot.</p>
+</details>
+</div>
+
+<div class="card exercise">
+<h2>2. Две переменные</h2>
+<p>Нужно понять, связаны ли длина ласта и масса пингвина.</p>
+<details><summary>Проверить идею</summary>
+<p>Обе переменные числовые → scatter plot.</p>
+</details>
+</div>
+
+<div class="card exercise">
+<h2>3. Сравнение групп</h2>
+<p>Нужно сравнить стоимость билета между классами пассажиров Titanic.</p>
+<details><summary>Проверить идею</summary>
+<p>Класс — категориальная переменная, стоимость — числовая. Подходит boxplot по категориям.</p>
+</details>
+</div>
+
+<div class="card exercise">
+<h2>4. Сформулируйте вопросы</h2>
+<p>Для знакомого DataFrame придумайте:</p>
+<ol>
+<li>вопрос про одну категориальную переменную;</li>
+<li>вопрос про одну числовую переменную;</li>
+<li>вопрос про связь двух переменных.</li>
+</ol>
+<p>Для каждого вопроса выберите подходящий тип графика.</p>
+</div>
+
+</section>
+
+<section id="quiz" style="display:none">
+<div class="card">
+<h2>Квиз</h2>
+<div id="qbox"></div>
+<button id="check">Проверить</button>
+<button id="next">Следующий</button>
+<div id="feedback" style="margin-top:10px"></div>
+</div>
+</section>
+
+<script>
+const tabs=document.querySelectorAll('.tab');
+tabs.forEach(t=>t.onclick=()=>{
+  tabs.forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  document.getElementById('theory').style.display=t.dataset.tab==='theory'?'':'none';
+  document.getElementById('play').style.display=t.dataset.tab==='play'?'':'none';
+  document.getElementById('quiz').style.display=t.dataset.tab==='quiz'?'':'none';
+});
+
+const questions=[
+{q:'Нужно показать количество объектов каждого вида. Что подходит лучше всего?',o:['Scatter plot','Countplot','Histogram','Heatmap'],c:1,e:'Вид — категориальная переменная, а вопрос касается количества объектов.'},
+{q:'Что лучше показывает форму распределения одной числовой переменной?',o:['Histogram','Countplot','Scatter plot','Line plot'],c:0,e:'Histogram показывает, как числовые значения распределены по интервалам.'},
+{q:'Нужно сравнить массу между несколькими видами. Что удобно использовать?',o:['Boxplot по категориям','Scatter без категорий','Countplot','Heatmap корреляций'],c:0,e:'Есть категория и числовая переменная — boxplot позволяет сравнить распределения.'},
+{q:'Есть рост и вес. Что использовать для исследования связи?',o:['Countplot','Scatter plot','Histogram','Bar количества'],c:1,e:'Для двух числовых переменных базовый вариант — scatter plot.'},
+{q:'Что делает hue в Seaborn?',o:['Добавляет дополнительное разбиение по категории','Сортирует данные','Удаляет пропуски','Считает среднее'],c:0,e:'hue кодирует дополнительную категориальную переменную.'},
+{q:'Высокая корреляция означает, что один признак вызывает другой?',o:['Да','Нет'],c:1,e:'Корреляция сама по себе не доказывает причинно-следственную связь.'},
+{q:'Что важнее сделать до выбора графика?',o:['Определить вопрос и типы переменных','Выбрать цвет','Увеличить figsize','Отсортировать DataFrame'],c:0,e:'Тип визуализации определяется вопросом и типами переменных.'}
+];
+
+let i=0;
+function render(){
+  const q=questions[i];
+  document.getElementById('qbox').innerHTML=
+    '<p><b>'+q.q+'</b></p>'+
+    q.o.map((x,j)=>'<label style="display:block;margin:6px 0"><input type="radio" name="q" value="'+j+'"> '+x+'</label>').join('');
+  document.getElementById('feedback').innerHTML='';
+}
+document.getElementById('check').onclick=()=>{
+  const el=document.querySelector('input[name="q"]:checked');
+  if(!el)return;
+  const q=questions[i],v=Number(el.value);
+  document.getElementById('feedback').innerHTML=
+    (v===q.c?'<div class="ok">Верно.</div>':'<div class="bad">Неверно.</div>')+
+    '<div class="muted">'+q.e+'</div>';
+};
+document.getElementById('next').onclick=()=>{i=(i+1)%questions.length;render()};
+render();
+</script>
+
+</div>
+</body>
+</html>

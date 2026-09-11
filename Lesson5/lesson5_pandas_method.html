@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pandas: преобразования, groupby и merge</title>
+<style>
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:24px;line-height:1.45}
+.wrap{max-width:1000px;margin:auto}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.tab{padding:8px 12px;border:1px solid #ccc;border-radius:10px;cursor:pointer}.active{font-weight:700;border-color:#000}
+.card{border:1px solid #ddd;border-radius:14px;padding:14px;margin:12px 0}
+pre{background:#f7f7f7;padding:10px;border-radius:12px;overflow:auto}.muted{color:#666;font-size:13px}
+.note{background:#fff7e6;border:1px solid #ffe2a8;padding:10px;border-radius:12px}
+table{width:100%;border-collapse:collapse}td,th{border:1px solid #ddd;padding:8px;text-align:left}
+button{padding:9px 12px;border:1px solid #ccc;border-radius:9px;cursor:pointer;background:white}
+.ok{color:#087f5b;font-weight:700}.bad{color:#c33;font-weight:700}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Pandas: преобразования, строки, даты, groupby и merge</h1>
+<div class="muted">Краткая методичка к занятию 5.</div>
+
+<div class="tabs">
+<div class="tab active" data-tab="theory">Теория</div>
+<div class="tab" data-tab="quiz">Квиз</div>
+</div>
+
+<section id="theory">
+<div class="card"><div class="note"><b>Главная линия:</b> новые столбцы → строки → даты → groupby → merge → анализ объединённых данных.</div></div>
+
+<div class="card">
+<h2>1. Новый столбец</h2>
+<pre><code>data["total"] = data["quantity"] * data["unit_price"]</code></pre>
+<p>Операция выполняется сразу над целыми столбцами — без ручного цикла.</p>
+</div>
+
+<div class="card">
+<h2>2. Строковые методы</h2>
+<pre><code>data["category_clean"] = (
+    data["category"]
+    .str.strip()
+    .str.lower()
+)
+
+data["product"].str.contains("Книга")
+data["product"].str.len()</code></pre>
+<p>Для строкового столбца используется пространство имён <code>.str</code>.</p>
+</div>
+
+<div class="card">
+<h2>3. Даты</h2>
+<pre><code>data["order_date"] = pd.to_datetime(data["order_date"])
+
+data["order_date"].dt.year
+data["order_date"].dt.month
+data["order_date"].dt.day</code></pre>
+<p><code>.dt</code> становится доступен после преобразования столбца в дату.</p>
+</div>
+
+<div class="card">
+<h2>4. GroupBy</h2>
+<pre><code>data.groupby("category")["total"].mean()
+
+data.groupby("category")["total"].agg(
+    ["count", "sum", "mean"]
+)</code></pre>
+<p>Логика: разбить строки на группы → выбрать показатель → применить агрегат.</p>
+</div>
+
+<div class="card">
+<h2>5. Merge</h2>
+<pre><code>full_data = orders.merge(
+    customers,
+    on="customer_id",
+    how="inner",
+)</code></pre>
+<table>
+<tr><th>Тип</th><th>Смысл</th></tr>
+<tr><td><code>inner</code></td><td>оставить только совпавшие ключи</td></tr>
+<tr><td><code>left</code></td><td>сохранить все строки левой таблицы</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h2>6. Анализ после merge</h2>
+<pre><code>full_data[
+    full_data["status"] == "paid"
+].groupby("city")["total"].sum()</code></pre>
+<p>После объединения можно анализировать показатели заказа вместе с признаками клиента.</p>
+</div>
+</section>
+
+<section id="quiz" style="display:none">
+<div class="card">
+<h2>Квиз</h2>
+<div id="qbox"></div>
+<button id="check">Проверить</button>
+<button id="next">Следующий</button>
+<div id="fb" style="margin-top:10px"></div>
+</div>
+</section>
+
+<script>
+const tabs=document.querySelectorAll('.tab');
+tabs.forEach(t=>t.onclick=()=>{
+ tabs.forEach(x=>x.classList.remove('active'));t.classList.add('active');
+ document.getElementById('theory').style.display=t.dataset.tab==='theory'?'':'none';
+ document.getElementById('quiz').style.display=t.dataset.tab==='quiz'?'':'none';
+});
+
+const qs=[
+{q:'Как создать новый столбец total?',o:['data["total"] = data["quantity"] * data["unit_price"]','data.total()','append(total)','merge(total)'],c:0,e:'Векторная операция выполняется сразу над Series.'},
+{q:'Как применить lower ко всему строковому столбцу?',o:['data["x"].lower()','data["x"].str.lower()','lower(data["x"])','data.lower("x")'],c:1,e:'Для строковых операций Series используется .str.'},
+{q:'Что нужно сделать перед использованием .dt?',o:['Преобразовать столбец через pd.to_datetime','Отсортировать','Сделать reset_index','Вызвать describe'],c:0,e:'.dt предназначен для datetime-подобных значений.'},
+{q:'Что делает groupby?',o:['Разбивает строки на группы по значению ключа','Удаляет строки','Объединяет две таблицы','Меняет тип столбца'],c:0,e:'После группировки к группам обычно применяют агрегаты.'},
+{q:'Что является ключом в merge?',o:['Столбец, по которому сопоставляются строки','Любой числовой столбец','Индекс обязательно','Название DataFrame'],c:0,e:'Merge сопоставляет строки по значениям ключевого столбца.'},
+{q:'Что делает how="left"?',o:['Сохраняет все строки левой таблицы','Оставляет только совпавшие строки','Сохраняет только правую таблицу','Сортирует слева направо'],c:0,e:'Left join сохраняет все строки левой таблицы.'}
+];
+let i=0;
+function render(){
+ const q=qs[i];
+ document.getElementById('qbox').innerHTML='<p><b>'+q.q+'</b></p>'+q.o.map((x,j)=>'<label style="display:block;margin:6px 0"><input type="radio" name="q" value="'+j+'"> '+x+'</label>').join('');
+ document.getElementById('fb').innerHTML='';
+}
+document.getElementById('check').onclick=()=>{
+ const el=document.querySelector('input[name="q"]:checked'); if(!el)return;
+ const q=qs[i],v=Number(el.value);
+ document.getElementById('fb').innerHTML=(v===q.c?'<div class="ok">Верно.</div>':'<div class="bad">Неверно.</div>')+'<div class="muted">'+q.e+'</div>';
+};
+document.getElementById('next').onclick=()=>{i=(i+1)%qs.length;render()};
+render();
+</script>
+</div>
+</body>
+</html>

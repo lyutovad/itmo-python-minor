@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Интерактивный семинар — Plotly</title>
+  <style>
+    :root{
+      --bg:#fafafa; --text:#222; --muted:#666; --line:#ddd; --soft:#f7f7f7;
+      --note:#fff7e6; --note-line:#ffe2a8; --ok:#0a7; --bad:#c33; --accent:#111;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font:15px/1.55 Arial, Helvetica, sans-serif}
+    .wrap{max-width:1140px;margin:0 auto;padding:24px}
+    h1,h2,h3{margin:0 0 10px}
+    h1{font-size:30px}
+    h2{font-size:24px}
+    h3{font-size:18px}
+    .muted{color:var(--muted)}
+    .tabs,.subtabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
+    .tab,.subtab{
+      border:1px solid var(--line); border-radius:999px; padding:8px 14px; cursor:pointer;
+      background:white; user-select:none;
+    }
+    .tab.active,.subtab.active{background:var(--accent);color:white;border-color:var(--accent)}
+    .card{border:1px solid var(--line);border-radius:14px;padding:14px;margin:12px 0;background:white}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media (max-width:920px){.row{grid-template-columns:1fr}}
+    label{display:block;font-weight:600;margin:8px 0 6px}
+    input,select,button{
+      width:100%; padding:10px; border-radius:10px; border:1px solid #ccc; font-size:14px;
+      background:white;
+    }
+    button{cursor:pointer}
+    button.secondary{background:#fff;color:#222}
+    pre{background:var(--soft);padding:10px;border-radius:12px;overflow:auto;white-space:pre-wrap}
+    code{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace}
+    .ok{color:var(--ok);font-weight:700}
+    .bad{color:var(--bad);font-weight:700}
+    .note{background:var(--note);border:1px solid var(--note-line);padding:10px;border-radius:12px}
+    .panel{display:block}
+    .subpanel{display:block}
+    .center{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .stat{padding:8px 12px;border:1px solid var(--line);border-radius:12px;background:#fff}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Lesson — Plotly</h1>
+  <div class="muted">Отдельный интерактив по Plotly: основы, Plotly Express, graph_objects, интерактивность, настройка графиков, hover, color, facets и сохранение графиков.</div>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="theory">Теория</div>
+    <div class="tab" data-tab="play">Поиграть</div>
+    <div class="tab" data-tab="quiz">Самопроверка</div>
+  </div>
+
+  <section id="theory" class="panel">
+    <div class="card">
+      <h2>Темы занятия</h2>
+      <div class="note"><b>Цель:</b> понять, когда использовать Plotly, чем отличаются <code>plotly.express</code> и <code>plotly.graph_objects</code>, и как настраивать интерактивные графики.</div>
+      <div class="subtabs">
+        <div class="subtab active" data-sub="t_intro">Зачем Plotly</div>
+        <div class="subtab" data-sub="t_px">Plotly Express</div>
+        <div class="subtab" data-sub="t_go">graph_objects</div>
+        <div class="subtab" data-sub="t_interact">Интерактивность</div>
+        <div class="subtab" data-sub="t_style">Настройка</div>
+        <div class="subtab" data-sub="t_save">Сохранение</div>
+      </div>
+    </div>
+
+    <div id="t_intro" class="subpanel">
+      <div class="card">
+        <h2>Зачем Plotly</h2>
+        <ul>
+          <li>Plotly строит интерактивные графики: можно наводить мышкой, масштабировать, скрывать серии.</li>
+          <li>Он хорошо подходит для дашбордов, разведочного анализа и учебных примеров, где важно “потрогать” график.</li>
+          <li>Часто используется в Jupyter Notebook и в веб-интерфейсах.</li>
+        </ul>
+<pre><code>import plotly.express as px
+
+fig = px.line(df, x='date', y='sales', title='Продажи по датам')
+fig.show()</code></pre>
+        <div class="note">Если нужен интерактив “из коробки”, Plotly часто удобнее статичных библиотек.</div>
+      </div>
+    </div>
+
+    <div id="t_px" class="subpanel" style="display:none;">
+      <div class="card">
+        <h2>Plotly Express</h2>
+        <ul>
+          <li><code>plotly.express</code> — быстрый способ построить график одной командой.</li>
+          <li>Подходит для типовых задач: line, bar, scatter, histogram, box, violin, pie.</li>
+          <li>Удобен, когда данные уже лежат в DataFrame.</li>
+        </ul>
+<pre><code>import plotly.express as px
+
+fig = px.scatter(
+    df,
+    x='hours',
+    y='score',
+    color='group',
+    title='Связь часов подготовки и оценки'
+)
+fig.show()</code></pre>
+        <div class="note">Plotly Express особенно хорош для быстрого старта и учебных задач.</div>
+      </div>
+    </div>
+
+    <div id="t_go" class="subpanel" style="display:none;">
+      <div class="card">
+        <h2>plotly.graph_objects</h2>
+        <ul>
+          <li><code>graph_objects</code> даёт больше контроля над графиком.</li>
+          <li>Там вы вручную добавляете серии, настраиваете оси, легенду и элементы layout.</li>
+          <li>Часто используется, когда простой команды Express уже недостаточно.</li>
+        </ul>
+<pre><code>import plotly.graph_objects as go
+
+fig = go.Figure()
+fig.add_trace(go.Scatter(x=[1,2,3], y=[10,15,13], mode='lines', name='A'))
+fig.add_trace(go.Scatter(x=[1,2,3], y=[8,11,16], mode='lines', name='B'))
+fig.update_layout(title='Две серии на одном графике')
+fig.show()</code></pre>
+        <div class="note">Если нужен более тонкий контроль, обычно переходят к <code>go.Figure()</code>.</div>
+      </div>
+    </div>
+
+    <div id="t_interact" class="subpanel" style="display:none;">
+      <div class="card">
+        <h2>Интерактивность</h2>
+        <ul>
+          <li>В Plotly можно приближать график, выделять участок, читать подсказки при наведении.</li>
+          <li>Легенда часто позволяет скрывать и показывать отдельные серии.</li>
+          <li><code>hover_data</code> помогает добавить полезные поля во всплывающую подсказку.</li>
+        </ul>
+<pre><code>fig = px.scatter(
+    df,
+    x='height',
+    y='weight',
+    hover_data=['name', 'age']
+)
+fig.show()</code></pre>
+        <div class="note">Интерактивность полезна, когда важно исследовать отдельные точки и детали.</div>
+      </div>
+    </div>
+
+    <div id="t_style" class="subpanel" style="display:none;">
+      <div class="card">
+        <h2>Настройка графиков</h2>
+        <ul>
+          <li>В Plotly часто используют <code>update_layout</code> и <code>update_traces</code>.</li>
+          <li>Можно менять заголовок, подписи осей, легенду, размер графика, шаблон оформления.</li>
+          <li>Для разделения по группам полезны <code>color</code>, <code>symbol</code>, <code>facet_row</code>, <code>facet_col</code>.</li>
+        </ul>
+<pre><code>fig = px.bar(df, x='city', y='students', color='program')
+fig.update_layout(
+    title='Студенты по городам',
+    xaxis_title='Город',
+    yaxis_title='Количество'
+)
+fig.show()</code></pre>
+        <div class="note">Хороший Plotly-график — это не только интерактивность, но и понятная структура.</div>
+      </div>
+    </div>
+
+    <div id="t_save" class="subpanel" style="display:none;">
+      <div class="card">
+        <h2>Сохранение графиков</h2>
+        <ul>
+          <li>Графики Plotly можно сохранять как HTML.</li>
+          <li>Это удобно, если нужно отправить интерактивный график другому человеку.</li>
+          <li>Для статичных картинок используют дополнительные зависимости.</li>
+        </ul>
+<pre><code>fig.write_html("plot.html")
+
+# Для изображения:
+# fig.write_image("plot.png")</code></pre>
+        <div class="note">HTML — очень удобный формат для обмена интерактивными визуализациями.</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="play" class="panel" style="display:none;">
+    <div class="card">
+      <h2>Поиграть</h2>
+      <div class="muted">Небольшие задания по Plotly: что выбрать, как настроить график и что отвечает за интерактивность.</div>
+      <div class="subtabs">
+        <div class="subtab active" data-sub="p_px">Plotly Express</div>
+        <div class="subtab" data-sub="p_go">graph_objects</div>
+        <div class="subtab" data-sub="p_hover">Hover и интерактивность</div>
+        <div class="subtab" data-sub="p_style">Настройка</div>
+        <div class="subtab" data-sub="p_choice">Выбор инструмента</div>
+      </div>
+    </div>
+
+    <div id="p_px" class="subpanel">
+      <div class="row">
+        <div class="card">
+          <h3>1) Что выбрать для быстрого графика из DataFrame?</h3>
+          <label>Выберите вариант</label>
+          <select id="pxSelect">
+            <option>plotly.express</option>
+            <option>Только graph_objects</option>
+            <option>Только matplotlib</option>
+          </select>
+          <button id="btnPxSelect">Проверить</button>
+          <div id="pxSelectOut" style="margin-top:12px"></div>
+        </div>
+        <div class="card">
+          <h3>2) Какой код выглядит как Plotly Express?</h3>
+<pre><code>fig = px.scatter(df, x='hours', y='score', color='group')</code></pre>
+          <button id="btnPxRead">Почему это удобно?</button>
+          <div id="pxReadOut" style="margin-top:12px"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="p_go" class="subpanel" style="display:none;">
+      <div class="row">
+        <div class="card">
+          <h3>1) Когда нужен graph_objects?</h3>
+          <label>Выберите случай</label>
+          <select id="goSelect">
+            <option>Когда нужен более точный контроль над сериями и layout</option>
+            <option>Когда нужна только одна простая команда</option>
+            <option>Когда вообще не нужен Python</option>
+          </select>
+          <button id="btnGoSelect">Проверить</button>
+          <div id="goSelectOut" style="margin-top:12px"></div>
+        </div>
+        <div class="card">
+          <h3>2) Что делает add_trace?</h3>
+          <button id="btnGoRead">Показать ответ</button>
+          <div id="goReadOut" style="margin-top:12px"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="p_hover" class="subpanel" style="display:none;">
+      <div class="row">
+        <div class="card">
+          <h3>1) Что добавить, чтобы видеть дополнительные поля при наведении?</h3>
+          <label>Выберите параметр</label>
+          <select id="hoverSelect">
+            <option>hover_data</option>
+            <option>bins</option>
+            <option>figsize</option>
+          </select>
+          <button id="btnHoverSelect">Проверить</button>
+          <div id="hoverSelectOut" style="margin-top:12px"></div>
+        </div>
+        <div class="card">
+          <h3>2) Что даёт интерактивность Plotly?</h3>
+          <button id="btnHoverRead">Показать ответ</button>
+          <div id="hoverReadOut" style="margin-top:12px"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="p_style" class="subpanel" style="display:none;">
+      <div class="row">
+        <div class="card">
+          <h3>1) Чем обычно меняют заголовок и подписи осей?</h3>
+          <label>Выберите вариант</label>
+          <select id="styleSelect">
+            <option>update_layout</option>
+            <option>merge_layout</option>
+            <option>rename_plot</option>
+          </select>
+          <button id="btnStyleSelect">Проверить</button>
+          <div id="styleSelectOut" style="margin-top:12px"></div>
+        </div>
+        <div class="card">
+          <h3>2) Что делает color в Plotly Express?</h3>
+          <button id="btnStyleRead">Показать ответ</button>
+          <div id="styleReadOut" style="margin-top:12px"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="p_choice" class="subpanel" style="display:none;">
+      <div class="row">
+        <div class="card">
+          <h3>1) Нужно быстро построить bar plot из DataFrame</h3>
+          <label>Что логичнее взять?</label>
+          <select id="choice1">
+            <option>px.bar(...)</option>
+            <option>Только go.Figure() всегда</option>
+            <option>Только write_html()</option>
+          </select>
+          <button id="btnChoice1">Проверить</button>
+          <div id="choice1Out" style="margin-top:12px"></div>
+        </div>
+        <div class="card">
+          <h3>2) Нужно вручную добавить две линии и тонко настроить layout</h3>
+          <label>Что логичнее взять?</label>
+          <select id="choice2">
+            <option>go.Figure() + add_trace()</option>
+            <option>Только px.histogram()</option>
+            <option>Только hover_data</option>
+          </select>
+          <button id="btnChoice2">Проверить</button>
+          <div id="choice2Out" style="margin-top:12px"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="quiz" class="panel" style="display:none;">
+    <div class="card">
+      <h2>Самопроверка</h2>
+      <div class="muted">Вопросы разделены по темам Plotly. Есть и смешанный банк.</div>
+      <div class="subtabs">
+        <div class="subtab active" data-sub="q_intro">Основы</div>
+        <div class="subtab" data-sub="q_px">Plotly Express</div>
+        <div class="subtab" data-sub="q_go">graph_objects</div>
+        <div class="subtab" data-sub="q_hover">Интерактивность</div>
+        <div class="subtab" data-sub="q_style">Настройка</div>
+        <div class="subtab" data-sub="q_save">Сохранение</div>
+        <div class="subtab" data-sub="q_mix">Смешанные</div>
+      </div>
+      <div class="center" style="margin:10px 0 4px">
+        <div class="stat">Счёт: <span id="score">0/0</span></div>
+        <div class="stat">Банк: <span id="bankName">Основы</span></div>
+      </div>
+      <div id="quizBox" class="card"></div>
+      <div class="center">
+        <button id="btnCheck">Проверить</button>
+        <button id="btnNext" class="secondary">Следующий вопрос</button>
+        <button id="btnReset" class="secondary">Сбросить банк</button>
+      </div>
+      <div id="feedback" style="margin-top:12px"></div>
+    </div>
+  </section>
+</div>
+
+<script>
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]] = [a[j],a[i]];
+    }
+    return a;
+  }
+
+  function wireTabs(rootSel){
+    const root = document.querySelector(rootSel);
+    root.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        root.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        const target = tab.dataset.tab;
+        document.querySelectorAll('.panel').forEach(p => p.style.display = 'none');
+        document.getElementById(target).style.display = 'block';
+      });
+    });
+  }
+  wireTabs('body');
+
+  function wireSubtabs(scope){
+    document.querySelectorAll(scope + ' .subtabs').forEach(box => {
+      const tabs = box.querySelectorAll('.subtab');
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          tabs.forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          const panels = Array.from(box.parentElement.parentElement.querySelectorAll('.subpanel'));
+          panels.forEach(p => p.style.display = 'none');
+          const el = document.getElementById(tab.dataset.sub);
+          if(el) el.style.display = 'block';
+        });
+      });
+    });
+  }
+  wireSubtabs('#theory');
+  wireSubtabs('#play');
+
+  function setMsg(id, ok, good, bad){
+    document.getElementById(id).innerHTML = ok ? `<div class="ok">${good}</div>` : `<div class="bad">${bad}</div>`;
+  }
+
+  document.getElementById('btnPxSelect').addEventListener('click', ()=>{
+    setMsg('pxSelectOut',
+      document.getElementById('pxSelect').value === 'plotly.express',
+      'Верно: Plotly Express удобен для быстрого графика из DataFrame.',
+      'Нет. Для быстрого построения типового графика обычно удобно брать Plotly Express.'
+    );
+  });
+  document.getElementById('btnPxRead').addEventListener('click', ()=>{
+    document.getElementById('pxReadOut').innerHTML = '<div class="ok">Потому что график строится одной короткой командой, а данные можно брать прямо из DataFrame.</div>';
+  });
+
+  document.getElementById('btnGoSelect').addEventListener('click', ()=>{
+    setMsg('goSelectOut',
+      document.getElementById('goSelect').value === 'Когда нужен более точный контроль над сериями и layout',
+      'Да: graph_objects используют, когда нужен более тонкий контроль.',
+      'Не совсем. graph_objects обычно нужен для более сложной и ручной настройки.'
+    );
+  });
+  document.getElementById('btnGoRead').addEventListener('click', ()=>{
+    document.getElementById('goReadOut').innerHTML = '<div class="ok">add_trace добавляет на график новую серию или новый слой данных.</div>';
+  });
+
+  document.getElementById('btnHoverSelect').addEventListener('click', ()=>{
+    setMsg('hoverSelectOut',
+      document.getElementById('hoverSelect').value === 'hover_data',
+      'Верно: hover_data добавляет поля во всплывающую подсказку.',
+      'Неверно. За дополнительные поля при наведении часто отвечает hover_data.'
+    );
+  });
+  document.getElementById('btnHoverRead').addEventListener('click', ()=>{
+    document.getElementById('hoverReadOut').innerHTML = '<div class="ok">Можно наводить мышкой, читать значения точек, масштабировать график, скрывать серии через легенду.</div>';
+  });
+
+  document.getElementById('btnStyleSelect').addEventListener('click', ()=>{
+    setMsg('styleSelectOut',
+      document.getElementById('styleSelect').value === 'update_layout',
+      'Верно: update_layout часто используют для заголовка, осей и прочих настроек.',
+      'Нет. Обычно такие настройки делают через update_layout.'
+    );
+  });
+  document.getElementById('btnStyleRead').addEventListener('click', ()=>{
+    document.getElementById('styleReadOut').innerHTML = '<div class="ok">Параметр color разделяет данные по группам и показывает их разными цветами.</div>';
+  });
+
+  document.getElementById('btnChoice1').addEventListener('click', ()=>{
+    setMsg('choice1Out',
+      document.getElementById('choice1').value === 'px.bar(...)',
+      'Верно.',
+      'Для быстрого bar plot по DataFrame логично взять px.bar(...).'
+    );
+  });
+  document.getElementById('btnChoice2').addEventListener('click', ()=>{
+    setMsg('choice2Out',
+      document.getElementById('choice2').value === 'go.Figure() + add_trace()',
+      'Верно.',
+      'Если нужно вручную добавлять серии и детально управлять графиком, логичнее go.Figure() + add_trace().'
+    );
+  });
+
+  const bank_intro = [
+    {q:"Почему Plotly часто выбирают для учебных и исследовательских задач?", options:["Потому что графики интерактивные","Потому что Plotly работает только без Python","Потому что у него нет hover-подсказок","Потому что он сохраняет только png"], correct:0, explain:"Главное преимущество — интерактивность."},
+    {q:"Что можно делать с графиком Plotly прямо в ноутбуке?", options:["Масштабировать, наводить мышкой, скрывать серии","Только смотреть как картинку","Только печатать код под ним","Только менять DataFrame"], correct:0, explain:"Plotly поддерживает интерактивные действия прямо на графике."},
+    {q:"Для чего Plotly особенно удобен?", options:["Для интерактивных визуализаций","Только для линейной алгебры","Только для SQL","Только для текстовой классификации"], correct:0, explain:"Это библиотека именно для визуализации."},
+    {q:"Как обычно показывают график Plotly в ноутбуке?", options:["fig.show()","plt.show()","show(fig) без объекта","df.show_plot()"], correct:0, explain:"У объекта figure обычно вызывают fig.show()."},
+    {q:"Что отличает Plotly от многих статичных библиотек?", options:["Интерактивность по умолчанию","Отсутствие графиков","Работа только с csv","Невозможность сохранять результат"], correct:0, explain:"Интерактивность — ключевое отличие."},
+    {q:"Где Plotly часто используют?", options:["В ноутбуках, дашбордах и веб-интерфейсах","Только в C++","Только в Excel","Только в терминале"], correct:0, explain:"Plotly популярен в интерактивной аналитике."}
+  ];
+
+  const bank_px = [
+    {q:"Что такое Plotly Express?", options:["Упрощённый интерфейс для быстрого построения графиков","Отдельный язык программирования","Только формат сохранения графиков","Редактор html-файлов"], correct:0, explain:"Plotly Express позволяет строить типовые графики очень быстро."},
+    {q:"Что обычно удобно передавать в px.scatter или px.bar?", options:["DataFrame и имена столбцов","Только list без подписей","Только SQL-запрос","Только json-строку"], correct:0, explain:"Express хорошо работает с DataFrame."},
+    {q:"Какой вызов больше всего похож на Plotly Express?", options:["px.line(df, x='date', y='sales')","go.Figure().add_trace(...)","plt.plot(x, y)","fig.write_html('x.html')"], correct:0, explain:"Это типичный синтаксис Express."},
+    {q:"Когда Plotly Express особенно удобен?", options:["Когда нужен типовой график одной командой","Когда нужно вручную добавлять 20 trace","Когда нужен только экспорт изображения","Когда не используется DataFrame"], correct:0, explain:"Express — быстрый и удобный старт."},
+    {q:"Что может делать параметр color в Plotly Express?", options:["Разделять данные на группы по цвету","Сохранять файл на диск","Менять тип графика","Создавать DataFrame"], correct:0, explain:"color — один из самых удобных параметров для группировки."},
+    {q:"Что часто делают через facet_col или facet_row?", options:["Разбивают график на несколько панелей","Сохраняют html","Убирают легенду навсегда","Преобразуют график в boxplot"], correct:0, explain:"Facet помогает сравнивать группы в отдельных мини-графиках."}
+  ];
+
+  const bank_go = [
+    {q:"Когда чаще переходят от Plotly Express к graph_objects?", options:["Когда нужен более детальный контроль","Когда нужен только один простой line plot","Когда не нужен график вообще","Когда надо только сохранить html"], correct:0, explain:"graph_objects удобен для более сложных и ручных построений."},
+    {q:"Что делает go.Figure()?", options:["Создаёт объект графика, в который можно добавлять trace","Сохраняет график в html","Заменяет DataFrame","Считает корреляции"], correct:0, explain:"Это базовый контейнер для графика в graph_objects."},
+    {q:"Что делает add_trace?", options:["Добавляет новую серию данных","Удаляет DataFrame","Меняет библиотеку Plotly на matplotlib","Сохраняет изображение"], correct:0, explain:"Каждый trace — это отдельная серия или слой графика."},
+    {q:"Какой пример больше похож на graph_objects?", options:["fig.add_trace(go.Scatter(...))","px.scatter(df, x='a', y='b')","df.plot()","sns.scatterplot(...)"], correct:0, explain:"go.Scatter и add_trace относятся к graph_objects."},
+    {q:"Почему graph_objects бывает полезнее Express?", options:["Можно точнее управлять сериями и layout","Он всегда короче по коду","Он не требует figure","Он работает только без данных"], correct:0, explain:"Главный плюс — гибкость."},
+    {q:"Что обычно настраивают в graph_objects вручную?", options:["Серии, оси, legend, layout","Только csv-файл","Только Python-версию","Только размер шрифта в редакторе"], correct:0, explain:"graph_objects хорош именно для ручной настройки."}
+  ];
+
+  const bank_hover = [
+    {q:"Что делает hover_data в Plotly Express?", options:["Добавляет поля во всплывающую подсказку","Создаёт новую ось","Удаляет легенду","Сохраняет html"], correct:0, explain:"hover_data помогает показать дополнительную информацию о точке."},
+    {q:"Что можно сделать с серией через легенду Plotly?", options:["Скрыть или показать её","Переобучить модель","Сохранить DataFrame","Считать среднее"], correct:0, explain:"Клик по легенде часто скрывает или изолирует серию."},
+    {q:"Какое преимущество даёт hover-подсказка?", options:["Можно увидеть точные значения и дополнительные поля","Она заменяет DataFrame","Она удаляет оси","Она строит boxplot"], correct:0, explain:"Hover полезен для чтения отдельных точек."},
+    {q:"Что из этого относится к интерактивности Plotly?", options:["Zoom и наведение мышкой","Только print(fig)","Только копирование кода","Только rename столбцов"], correct:0, explain:"Интерактивность — одна из центральных особенностей Plotly."},
+    {q:"Для чего особенно полезен hover на scatter plot?", options:["Для анализа отдельных точек и выбросов","Только для смены темы ноутбука","Для удаления осей","Для пересчёта bins"], correct:0, explain:"На scatter plot hover помогает читать детали конкретных объектов."},
+    {q:"Что обычно видит пользователь при наведении на точку?", options:["Значения и дополнительные поля","Только пустое окно","Только название Python-файла","Только комментарии автора"], correct:0, explain:"Hover делает чтение графика более содержательным."}
+  ];
+
+  const bank_style = [
+    {q:"Что чаще всего используют для настройки заголовка и осей?", options:["update_layout","rename_layout","facet_layout","trace_layout_only"], correct:0, explain:"update_layout — базовый способ менять оформление figure."},
+    {q:"Что делает color в Plotly Express?", options:["Разделяет наблюдения по цветам","Сохраняет график в png","Меняет тип данных","Скрывает DataFrame"], correct:0, explain:"Это удобный способ визуально различать группы."},
+    {q:"Что полезно добавить к графику, чтобы он был понятнее?", options:["Понятный заголовок и подписи осей","Случайные декоративные элементы","Максимум текста на самих точках","Полное отсутствие подписей"], correct:0, explain:"Читаемость важнее украшательства."},
+    {q:"Для чего нужны facet_col и facet_row?", options:["Для разбиения графика на несколько панелей","Для сохранения изображения","Для выключения интерактивности","Для удаления hover"], correct:0, explain:"Facet помогает сравнивать группы на отдельных маленьких графиках."},
+    {q:"Что может делать update_traces?", options:["Менять свойства самих серий","Создавать DataFrame","Сохранять html","Строить SQL-запрос"], correct:0, explain:"Через update_traces можно менять маркеры, подписи и другие свойства trace."},
+    {q:"Что лучше для хорошего оформления?", options:["Минимум лишнего, понятные подписи, осмысленные цвета","Как можно больше эффектов и хаоса","Отсутствие названий осей","Неподписанные серии"], correct:0, explain:"Главное — понятность графика."}
+  ];
+
+  const bank_save = [
+    {q:"Как сохранить интерактивный график Plotly?", options:["fig.write_html('plot.html')","fig.save_csv('plot.html')","plt.savefig('plot.html')","df.to_html('plot.html')"], correct:0, explain:"write_html сохраняет интерактивный график как html-файл."},
+    {q:"Почему HTML удобен для Plotly?", options:["Потому что сохраняет интерактивность","Потому что превращает график в Excel","Потому что убирает hover","Потому что работает только онлайн"], correct:0, explain:"HTML — удобный контейнер для интерактивного графика."},
+    {q:"Что обычно нужно для сохранения в png или jpg?", options:["Дополнительные зависимости","Только print(fig)","Только DataFrame","Ничего вообще"], correct:0, explain:"Для экспорта изображений обычно нужны дополнительные инструменты."},
+    {q:"Что полезно, если нужно отправить коллеге интерактивный график?", options:["Сохранить его как html","Сделать только скриншот","Удалить легенду","Убрать hover"], correct:0, explain:"HTML позволяет другому человеку открыть интерактивный график у себя."},
+    {q:"Что делает write_html?", options:["Записывает график Plotly в html-файл","Создаёт DataFrame","Добавляет trace","Меняет тип оси"], correct:0, explain:"Это метод сохранения интерактивной figure."},
+    {q:"Что сохраняется в html-версии графика?", options:["Структура интерактивной визуализации","Только одна картинка без интерактивности","Только текст кода","Только имя файла"], correct:0, explain:"Именно поэтому html-формат удобен для обмена Plotly-графиками."}
+  ];
+
+  const bank_mix = bank_intro.concat(bank_px, bank_go, bank_hover, bank_style, bank_save);
+
+  function prepareBank(bank){
+    return shuffle(bank).map(item => {
+      const opts = item.options.map((text, idx) => ({text, isCorrect: idx === item.correct}));
+      const shuffled = shuffle(opts);
+      return {
+        q: item.q,
+        options: shuffled.map(x => x.text),
+        correct: shuffled.findIndex(x => x.isCorrect),
+        explain: item.explain
+      };
+    });
+  }
+
+  const bankNames = {
+    q_intro:'Основы',
+    q_px:'Plotly Express',
+    q_go:'graph_objects',
+    q_hover:'Интерактивность',
+    q_style:'Настройка',
+    q_save:'Сохранение',
+    q_mix:'Смешанные'
+  };
+  const rawBanks = { q_intro:bank_intro, q_px:bank_px, q_go:bank_go, q_hover:bank_hover, q_style:bank_style, q_save:bank_save, q_mix:bank_mix };
+  let currentKey = 'q_intro';
+  let currentBank = prepareBank(rawBanks[currentKey]);
+  let idx = 0;
+  let scoreOk = 0;
+  let scoreTotal = 0;
+
+  document.querySelectorAll('#quiz .subtab').forEach(st => {
+    st.addEventListener('click', () => {
+      document.querySelectorAll('#quiz .subtab').forEach(x => x.classList.remove('active'));
+      st.classList.add('active');
+      currentKey = st.dataset.sub;
+      currentBank = prepareBank(rawBanks[currentKey]);
+      idx = 0; scoreOk = 0; scoreTotal = 0;
+      renderQuiz();
+    });
+  });
+
+  function renderQuiz(){
+    const item = currentBank[idx];
+    document.getElementById('bankName').textContent = bankNames[currentKey];
+    document.getElementById('score').textContent = `${scoreOk}/${scoreTotal}`;
+    document.getElementById('quizBox').innerHTML = `
+      <div class="muted">Вопрос ${idx+1} из ${currentBank.length}</div>
+      <pre><code>${item.q}</code></pre>
+      <div style="margin-top:10px;">
+        ${item.options.map((opt,i)=>`
+          <label style="font-weight:400; display:block; margin:6px 0;">
+            <input type="radio" name="quiz" value="${i}" style="width:auto; margin-right:8px;"> ${opt}
+          </label>`).join('')}
+      </div>`;
+    document.getElementById('feedback').innerHTML = '';
+  }
+
+  function getSelected(){
+    const el = document.querySelector('input[name="quiz"]:checked');
+    return el ? Number(el.value) : null;
+  }
+
+  document.getElementById('btnCheck').addEventListener('click', ()=>{
+    const sel = getSelected();
+    const item = currentBank[idx];
+    if(sel === null){
+      document.getElementById('feedback').innerHTML = '<span class="bad">Выберите вариант.</span>';
+      return;
+    }
+    scoreTotal += 1;
+    if(sel === item.correct){
+      scoreOk += 1;
+      document.getElementById('feedback').innerHTML = `<div class="ok">Верно.</div><div class="muted">${item.explain}</div>`;
+    } else {
+      document.getElementById('feedback').innerHTML = `<div class="bad">Неверно.</div><div class="muted">${item.explain}</div>`;
+    }
+    document.getElementById('score').textContent = `${scoreOk}/${scoreTotal}`;
+  });
+
+  document.getElementById('btnNext').addEventListener('click', ()=>{
+    idx = (idx + 1) % currentBank.length;
+    renderQuiz();
+  });
+
+  document.getElementById('btnReset').addEventListener('click', ()=>{
+    currentBank = prepareBank(rawBanks[currentKey]);
+    idx = 0; scoreOk = 0; scoreTotal = 0;
+    renderQuiz();
+  });
+
+  renderQuiz();
+</script>
+</body>
+</html>
